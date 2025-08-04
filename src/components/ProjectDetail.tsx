@@ -11,15 +11,6 @@ import { Button } from "./ui/button";
 import { Trash2, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ENTRY_CATEGORIES } from "@/lib/constants";
-import { useState } from "react";
 
 interface ProjectDetailProps {
   project: Project;
@@ -43,21 +34,13 @@ const isUrl = (text: string) => {
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState(ENTRY_CATEGORIES[0]); // Default to "All"
 
   const fetchEntries = async () => {
-    let query = supabase
+    const { data, error } = await supabase
       .from("entries")
       .select("*")
       .eq("project_id", project.id)
       .order("created_at", { ascending: false });
-    
-    if (selectedCategoryFilter !== "All") {
-      query = query.eq("category", selectedCategoryFilter);
-    }
-
-    const { data, error } = await query;
-    
     if (error) {
       showError("Could not fetch project entries.");
       throw new Error(error.message);
@@ -66,16 +49,16 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   };
 
   const { data: entries, isLoading } = useQuery<Entry[]>({
-    queryKey: ["entries", project.id, selectedCategoryFilter], // Add filter to query key
+    queryKey: ["entries", project.id],
     queryFn: fetchEntries,
   });
 
   const addNoteMutation = useMutation({
-    mutationFn: async ({ content, tags, location, category }: { content: string, tags: string[], location: string, category: string }) => {
+    mutationFn: async ({ content, tags, location }: { content: string, tags: string[], location: string }) => {
       if (!session) throw new Error("User not authenticated");
       const { data, error } = await supabase
         .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location, category }])
+        .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location }])
         .select();
       if (error) throw error;
       return data[0];
@@ -88,7 +71,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const addScreenshotMutation = useMutation({
-    mutationFn: async ({ file, caption, tags, location, category }: { file: File, caption: string, tags: string[], location: string, category: string }) => {
+    mutationFn: async ({ file, caption, tags, location }: { file: File, caption: string, tags: string[], location: string }) => {
       if (!session) throw new Error("User not authenticated");
       
       const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
@@ -99,7 +82,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
       const { data, error: insertError } = await supabase
         .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location, category }])
+        .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location }])
         .select();
       if (insertError) throw insertError;
       return data[0];
@@ -137,25 +120,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
           <div className="flex gap-2">
-            <AddNoteDialog onAddNote={(content, tags, location, category) => addNoteMutation.mutate({ content, tags, location, category })} />
-            <AddScreenshotDialog onAddScreenshot={(file, caption, tags, location, category) => addScreenshotMutation.mutate({ file, caption, tags, location, category })} />
+            <AddNoteDialog onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
+            <AddScreenshotDialog onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
           </div>
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
-        <div className="mb-6 flex justify-end">
-          <Select onValueChange={setSelectedCategoryFilter} value={selectedCategoryFilter}>
-            <SelectTrigger className="w-[180px] rounded-lg">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent>
-              {ENTRY_CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         {Object.keys(groupedEntries).length === 0 ? (
           <div className="text-center text-muted-foreground mt-12">
             <p className="text-lg">This project is empty.</p>
@@ -179,12 +149,6 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                         </Button>
                       </div>
                       
-                      {entry.category && (
-                        <Badge variant="secondary" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700">
-                          {entry.category}
-                        </Badge>
-                      )}
-
                       {entry.location && (
                         <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
                           {isUrl(entry.location) ? (

@@ -4,17 +4,87 @@ import { Project } from "@/types";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { ProjectList } from "@/components/ProjectList";
 import Header from "@/components/Header";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
+import { showSuccess, showError } from "@/utils/toast";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Index = () => {
-  const [projects, setProjects] = useState<Project[]>([
-    { id: '1', name: 'Sample Project' }
-  ]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { session } = useAuth();
+  const queryClient = useQueryClient();
+
+  const fetchProjects = async () => {
+    if (!session) return [];
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      showError("Could not fetch projects.");
+      throw new Error(error.message);
+    }
+    return data;
+  };
+
+  const { data: projects, isLoading } = useQuery<Project[]>({
+    queryKey: ['projects', session?.user?.id],
+    queryFn: fetchProjects,
+    enabled: !!session,
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async (name: string) => {
+      if (!session) throw new Error("User not authenticated");
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([{ name, user_id: session.user.id }])
+        .select();
+      
+      if (error) {
+        showError("Could not create project.");
+        throw new Error(error.message);
+      }
+      return data[0];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', session?.user?.id] });
+      showSuccess("Project created successfully!");
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) {
+        showError("Could not delete project.");
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', session?.user?.id] });
+      setSelectedProject(null);
+      showSuccess("Project deleted.");
+    },
+  });
 
   const handleCreateProject = (name: string) => {
-    const newProject: Project = { id: crypto.randomUUID(), name };
-    setProjects([...projects, newProject]);
+    createProjectMutation.mutate(name);
   };
+
+  const handleDeleteProject = (projectId: string) => {
+    deleteProjectMutation.mutate(projectId);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col">
@@ -26,7 +96,12 @@ const Index = () => {
               <h2 className="text-xl font-bold tracking-tight mb-4">Case Studies</h2>
               <NewProjectDialog onCreateProject={handleCreateProject} />
               <div className="mt-4 flex-grow">
-                <ProjectList projects={projects} onSelectProject={setSelectedProject} selectedProject={selectedProject} />
+                <ProjectList 
+                  projects={projects || []} 
+                  onSelectProject={setSelectedProject} 
+                  selectedProject={selectedProject}
+                  onDeleteProject={handleDeleteProject}
+                />
               </div>
             </div>
           </ResizablePanel>

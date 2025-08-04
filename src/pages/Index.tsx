@@ -10,7 +10,6 @@ import { useAuth } from "@/providers/AuthProvider";
 import { showSuccess, showError } from "@/utils/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProjectDetail } from "@/components/ProjectDetail";
-import { FolderPlus } from "lucide-react";
 
 const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -98,17 +97,15 @@ const Index = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-background">
+    <div className="h-screen w-screen flex flex-col">
       <Header />
       <div className="flex-grow overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="bg-card/50">
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
             <div className="flex h-full flex-col p-4">
-              <h2 className="text-lg font-bold tracking-tight mb-4 px-2">Case Studies</h2>
-              <div className="px-2 mb-4">
-                <NewProjectDialog onCreateProject={handleCreateProject} />
-              </div>
-              <div className="mt-2 flex-grow overflow-y-auto">
+              <h2 className="text-xl font-bold tracking-tight mb-4">Case Studies</h2>
+              <NewProjectDialog onCreateProject={handleCreateProject} />
+              <div className="mt-4 flex-grow overflow-y-auto">
                 <ProjectList 
                   projects={projects || []} 
                   onSelectProject={setSelectedProject} 
@@ -125,9 +122,8 @@ const Index = () => {
             ) : (
               <div className="flex h-full items-center justify-center p-6">
                 <div className="text-center">
-                  <FolderPlus className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h2 className="mt-4 text-xl font-semibold">Welcome!</h2>
-                  <p className="text-muted-foreground mt-2">Select a project or create a new one to get started.</p>
+                  <h2 className="text-xl font-semibold">Welcome!</h2>
+                  <p className="text-muted-foreground mt-2">Select a project from the sidebar or create a new one to get started.</p>
                 </div>
               </div>
             )}

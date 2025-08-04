@@ -15,13 +15,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera } from "lucide-react";
 
 interface AddScreenshotDialogProps {
-  onAddScreenshot: (file: File, caption: string, tags: string[]) => void;
+  onAddScreenshot: (file: File, caption: string, tags: string[], location: string) => void;
 }
 
 export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProps) {
   const [open, setOpen] = useState(false);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
+  const [location, setLocation] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,9 +43,10 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
     e.preventDefault();
     if (file) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddScreenshot(file, caption.trim(), tagArray);
+      onAddScreenshot(file, caption.trim(), tagArray, location.trim());
       setCaption("");
       setTags("");
+      setLocation("");
       setFile(null);
       setPreview(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
@@ -93,6 +95,15 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
                 placeholder="e.g., Wireframe, Mockup, Result"
               />
               <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
+            </div>
+            <div>
+              <Label htmlFor="screenshot-location">Location (optional)</Label>
+              <Input
+                id="screenshot-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., /checkout or https://..."
+              />
             </div>
           </div>
           <DialogFooter>

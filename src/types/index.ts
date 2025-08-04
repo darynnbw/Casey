@@ -15,4 +15,5 @@ export interface Entry {
   created_at: string;
   tags?: string[];
   location?: string;
+  category?: string; // New category field
 }

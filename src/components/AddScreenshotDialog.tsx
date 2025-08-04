@@ -14,9 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ENTRY_CATEGORIES } from "@/lib/constants";
 
 interface AddScreenshotDialogProps {
-  onAddScreenshot: (file: File, caption: string, tags: string[], location: string) => void;
+  onAddScreenshot: (file: File, caption: string, tags: string[], location: string, category: string) => void;
 }
 
 export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProps) {
@@ -24,6 +32,7 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState("");
+  const [category, setCategory] = useState(ENTRY_CATEGORIES[1]); // Default to first actual category
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,10 +53,11 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
     e.preventDefault();
     if (file) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddScreenshot(file, caption.trim(), tagArray, location.trim());
+      onAddScreenshot(file, caption.trim(), tagArray, location.trim(), category);
       setCaption("");
       setTags("");
       setLocation("");
+      setCategory(ENTRY_CATEGORIES[1]);
       setFile(null);
       setPreview(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
@@ -87,6 +97,19 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
                 rows={3}
                 className="rounded-lg"
               />
+            </div>
+            <div>
+              <Label htmlFor="screenshot-category" className="text-base">Category</Label>
+              <Select onValueChange={setCategory} value={category}>
+                <SelectTrigger id="screenshot-category" className="rounded-lg">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENTRY_CATEGORIES.slice(1).map((cat) => ( // Exclude "All" from selection
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="screenshot-tags" className="text-base">Tags</Label>

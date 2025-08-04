@@ -13,9 +13,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MessageSquarePlus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ENTRY_CATEGORIES } from "@/lib/constants";
 
 interface AddNoteDialogProps {
-  onAddNote: (content: string, tags: string[], location: string) => void;
+  onAddNote: (content: string, tags: string[], location: string, category: string) => void;
 }
 
 export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
@@ -23,15 +31,17 @@ export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState("");
+  const [category, setCategory] = useState(ENTRY_CATEGORIES[1]); // Default to first actual category
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (content.trim()) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddNote(content.trim(), tagArray, location.trim());
+      onAddNote(content.trim(), tagArray, location.trim(), category);
       setContent("");
       setTags("");
       setLocation("");
+      setCategory(ENTRY_CATEGORIES[1]);
       setOpen(false);
     }
   };
@@ -64,6 +74,19 @@ export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
                 autoFocus
                 className="rounded-lg"
               />
+            </div>
+            <div>
+              <Label htmlFor="note-category" className="text-base">Category</Label>
+              <Select onValueChange={setCategory} value={category}>
+                <SelectTrigger id="note-category" className="rounded-lg">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENTRY_CATEGORIES.slice(1).map((cat) => ( // Exclude "All" from selection
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="note-tags" className="text-base">Tags</Label>

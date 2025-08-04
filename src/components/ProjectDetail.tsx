@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Trash2, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useState } from "react"; // Import useState
 
 interface ProjectDetailProps {
   project: Project;
@@ -34,6 +35,7 @@ const isUrl = (text: string) => {
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
+  const [selectedTag, setSelectedTag] = useState<string | null>(null); // New state for selected tag
 
   const fetchEntries = async () => {
     const { data, error } = await supabase
@@ -112,7 +114,15 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   if (isLoading) return <div className="flex justify-center items-center h-full"><LoadingSpinner /></div>;
 
-  const groupedEntries = groupEntriesByDate(entries || []);
+  // Filter entries based on selectedTag
+  const filteredEntries = selectedTag
+    ? entries?.filter(entry => entry.tags?.includes(selectedTag))
+    : entries;
+
+  const groupedEntries = groupEntriesByDate(filteredEntries || []);
+
+  // Extract unique tags for pills
+  const allUniqueTags = Array.from(new Set(entries?.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -126,6 +136,28 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
+        {allUniqueTags.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            <Badge
+              variant={selectedTag === null ? "default" : "outline"}
+              className={cn("cursor-pointer rounded-full px-3 py-1 text-sm", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={() => setSelectedTag(null)}
+            >
+              All
+            </Badge>
+            {allUniqueTags.map((tag) => (
+              <Badge
+                key={tag}
+                variant={selectedTag === tag ? "default" : "outline"}
+                className={cn("cursor-pointer rounded-full px-3 py-1 text-sm", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {Object.keys(groupedEntries).length === 0 ? (
           <div className="text-center text-muted-foreground mt-12">
             <p className="text-lg">This project is empty.</p>

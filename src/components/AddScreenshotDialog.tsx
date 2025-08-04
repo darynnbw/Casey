@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,57 +58,60 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="rounded-lg">
           <Camera className="mr-2 h-4 w-4" />
           Add Screenshot
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] rounded-xl shadow-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Screenshot</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold">Add Screenshot</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Upload an image and add an optional caption and tags.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-6">
             <div>
-              <Label htmlFor="screenshot-file">Image</Label>
-              <Input id="screenshot-file" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} required />
+              <Label htmlFor="screenshot-file" className="text-base">Image</Label>
+              <Input id="screenshot-file" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} required className="rounded-lg" />
             </div>
-            {preview && <img src={preview} alt="Screenshot preview" className="mt-2 max-h-40 w-full object-contain rounded-md border" />}
+            {preview && <img src={preview} alt="Screenshot preview" className="mt-2 max-h-40 w-full object-contain rounded-lg border border-border/50 shadow-sm" />}
             <div>
-              <Label htmlFor="caption">Caption (optional)</Label>
+              <Label htmlFor="caption" className="text-base">Caption (optional)</Label>
               <Textarea
                 id="caption"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Describe this screenshot..."
                 rows={3}
+                className="rounded-lg"
               />
             </div>
             <div>
-              <Label htmlFor="screenshot-tags">Tags</Label>
+              <Label htmlFor="screenshot-tags" className="text-base">Tags</Label>
               <Input
                 id="screenshot-tags"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="e.g., Wireframe, Mockup, Result"
+                className="rounded-lg"
               />
               <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
             </div>
             <div>
-              <Label htmlFor="screenshot-location">Location (optional)</Label>
+              <Label htmlFor="screenshot-location" className="text-base">Location (optional)</Label>
               <Input
                 id="screenshot-location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g., /checkout or https://..."
+                className="rounded-lg"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={!file}>Save Screenshot</Button>
+            <Button type="submit" disabled={!file} className="rounded-lg px-4 py-2.5">Save Screenshot</Button>
           </DialogFooter>
         </form>
       </DialogContent>

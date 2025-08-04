@@ -39,22 +39,22 @@ export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="rounded-lg">
           <MessageSquarePlus className="mr-2 h-4 w-4" />
           Add Note
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] rounded-xl shadow-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add New Note</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold">Add New Note</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Write down your thoughts, ideas, or project updates.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-6">
             <div>
-              <Label htmlFor="note-content">Note</Label>
+              <Label htmlFor="note-content" className="text-base">Note</Label>
               <Textarea
                 id="note-content"
                 value={content}
@@ -62,30 +62,33 @@ export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
                 placeholder="Type your note here..."
                 rows={5}
                 autoFocus
+                className="rounded-lg"
               />
             </div>
             <div>
-              <Label htmlFor="note-tags">Tags</Label>
+              <Label htmlFor="note-tags" className="text-base">Tags</Label>
               <Input
                 id="note-tags"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="e.g., Problem, Solution, User-Feedback"
+                className="rounded-lg"
               />
               <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
             </div>
             <div>
-              <Label htmlFor="note-location">Location (optional)</Label>
+              <Label htmlFor="note-location" className="text-base">Location (optional)</Label>
               <Input
                 id="note-location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g., /checkout or https://..."
+                className="rounded-lg"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save Note</Button>
+            <Button type="submit" className="rounded-lg px-4 py-2.5">Save Note</Button>
           </DialogFooter>
         </form>
       </DialogContent>

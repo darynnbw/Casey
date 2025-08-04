@@ -125,32 +125,32 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </div>
         </div>
       </div>
-      <div className="flex-grow overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900/50">
+      <div className="flex-grow overflow-y-auto p-8 bg-background">
         {Object.keys(groupedEntries).length === 0 ? (
-          <div className="text-center text-muted-foreground mt-8">
-            <p>This project is empty.</p>
-            <p>Add a note or screenshot to get started.</p>
+          <div className="text-center text-muted-foreground mt-12">
+            <p className="text-lg">This project is empty.</p>
+            <p className="text-md mt-2">Add a note or screenshot to get started.</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {Object.entries(groupedEntries).map(([date, entriesOnDate]) => (
               <div key={date}>
-                <h3 className="text-lg font-semibold mb-4 pb-2 border-b">{date}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {entriesOnDate.map((entry, index) => (
                     <div key={entry.id} className={cn(
-                      "bg-yellow-50 dark:bg-yellow-900/20 shadow-md p-4 rounded-lg group relative transform transition-transform hover:scale-105 flex flex-col gap-3",
-                      index % 2 === 0 ? "rotate-1" : "-rotate-1"
+                      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
+                      index % 2 === 0 ? "rotate-1" : "-rotate-1" // Keeping the subtle rotation
                     )}>
                       <div className="flex justify-between items-start">
-                        <p className="text-xs text-muted-foreground">{format(new Date(entry.created_at), "h:mm a")}</p>
-                        <Button variant="ghost" size="icon" className="absolute top-1 right-1 opacity-0 group-hover:opacity-100" onClick={() => deleteEntryMutation.mutate(entry)}>
+                        <p className="text-sm text-muted-foreground">{format(new Date(entry.created_at), "h:mm a")}</p>
+                        <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => deleteEntryMutation.mutate(entry)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                       
                       {entry.location && (
-                        <Badge variant="outline" className="w-fit">
+                        <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
                           {isUrl(entry.location) ? (
                             <a href={entry.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
                               <Link2 className="h-3 w-3" />
@@ -165,18 +165,18 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                         </Badge>
                       )}
 
-                      {entry.type === 'note' && <p className="whitespace-pre-wrap text-sm">{entry.content}</p>}
+                      {entry.type === 'note' && <p className="whitespace-pre-wrap text-base text-foreground">{entry.content}</p>}
                       {entry.type === 'screenshot' && (
-                        <div className="space-y-2">
-                          <img src={entry.file_url} alt={entry.content || 'Screenshot'} className="w-full object-contain rounded-md border bg-white" />
-                          {entry.content && <p className="text-sm italic">{entry.content}</p>}
+                        <div className="space-y-3">
+                          <img src={entry.file_url} alt={entry.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-white shadow-sm" />
+                          {entry.content && <p className="text-sm italic text-muted-foreground">{entry.content}</p>}
                         </div>
                       )}
 
                       {entry.tags && entry.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-auto pt-2">
+                        <div className="flex flex-wrap gap-2 mt-auto pt-2">
                           {entry.tags.map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="secondary">{tag}</Badge>
+                            <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
                           ))}
                         </div>
                       )}

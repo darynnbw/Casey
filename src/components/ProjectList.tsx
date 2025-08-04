@@ -23,17 +23,17 @@ interface ProjectListProps {
 
 export function ProjectList({ projects, selectedProject, onSelectProject, onDeleteProject }: ProjectListProps) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {projects.length === 0 && (
         <p className="text-sm text-muted-foreground p-2">No projects yet. Create one to get started!</p>
       )}
       {projects.map((project) => (
-        <div key={project.id} className="flex items-center group">
+        <div key={project.id} className="flex items-center group rounded-lg transition-all duration-200 hover:bg-accent/50">
           <Button
             variant="ghost"
             className={cn(
-              "w-full justify-start flex-grow",
-              selectedProject?.id === project.id && "bg-accent text-accent-foreground"
+              "w-full justify-start flex-grow text-sidebar-foreground py-2 px-3 rounded-lg",
+              selectedProject?.id === project.id && "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent"
             )}
             onClick={() => onSelectProject(project)}
           >
@@ -41,11 +41,11 @@ export function ProjectList({ projects, selectedProject, onSelectProject, onDele
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <Trash2 className="h-4 w-4 text-muted-foreground" />
+              <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="rounded-xl">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -53,8 +53,8 @@ export function ProjectList({ projects, selectedProject, onSelectProject, onDele
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteProject(project.id)}>
+                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDeleteProject(project.id)} className="rounded-lg">
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>

@@ -102,10 +102,10 @@ const Index = () => {
       <div className="flex-grow overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-            <div className="flex h-full flex-col p-4">
-              <h2 className="text-xl font-bold tracking-tight mb-4">Case Studies</h2>
+            <div className="flex h-full flex-col p-6 bg-sidebar-background border-r border-sidebar-border">
+              <h2 className="text-xl font-semibold tracking-tight mb-6 text-sidebar-foreground">Case Studies</h2>
               <NewProjectDialog onCreateProject={handleCreateProject} />
-              <div className="mt-4 flex-grow overflow-y-auto">
+              <div className="mt-6 flex-grow overflow-y-auto">
                 <ProjectList 
                   projects={projects || []} 
                   onSelectProject={setSelectedProject} 
@@ -120,10 +120,10 @@ const Index = () => {
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />
             ) : (
-              <div className="flex h-full items-center justify-center p-6">
+              <div className="flex h-full items-center justify-center p-6 bg-background">
                 <div className="text-center">
-                  <h2 className="text-xl font-semibold">Welcome!</h2>
-                  <p className="text-muted-foreground mt-2">Select a project from the sidebar or create a new one to get started.</p>
+                  <h2 className="text-2xl font-semibold text-foreground">Welcome!</h2>
+                  <p className="text-muted-foreground mt-2 text-lg">Select a project from the sidebar or create a new one to get started.</p>
                 </div>
               </div>
             )}

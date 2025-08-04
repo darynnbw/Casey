@@ -16,9 +16,9 @@ const Header = () => {
   };
 
   return (
-    <header className="flex items-center justify-between p-4 bg-background border-b">
-      <h1 className="text-xl font-bold">Case Study Builder</h1>
-      <Button variant="outline" onClick={handleLogout}>
+    <header className="flex items-center justify-between px-6 py-4 bg-background border-b shadow-sm">
+      <h1 className="text-2xl font-bold tracking-tight">Case Study Builder</h1>
+      <Button variant="outline" onClick={handleLogout} className="rounded-lg">
         <LogOut className="mr-2 h-4 w-4" />
         Logout
       </Button>

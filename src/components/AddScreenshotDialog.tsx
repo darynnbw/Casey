@@ -15,12 +15,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera } from "lucide-react";
 
 interface AddScreenshotDialogProps {
-  onAddScreenshot: (file: File, caption: string) => void;
+  onAddScreenshot: (file: File, caption: string, tags: string[]) => void;
 }
 
 export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProps) {
   const [open, setOpen] = useState(false);
   const [caption, setCaption] = useState("");
+  const [tags, setTags] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,8 +41,10 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (file) {
-      onAddScreenshot(file, caption.trim());
+      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
+      onAddScreenshot(file, caption.trim(), tagArray);
       setCaption("");
+      setTags("");
       setFile(null);
       setPreview(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
@@ -57,12 +60,12 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
           Add Screenshot
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add Screenshot</DialogTitle>
             <DialogDescription>
-              Upload an image and add an optional caption.
+              Upload an image and add an optional caption and tags.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -80,6 +83,16 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
                 placeholder="Describe this screenshot..."
                 rows={3}
               />
+            </div>
+            <div>
+              <Label htmlFor="screenshot-tags">Tags</Label>
+              <Input
+                id="screenshot-tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="e.g., Wireframe, Mockup, Result"
+              />
+              <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
             </div>
           </div>
           <DialogFooter>

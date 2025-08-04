@@ -13,4 +13,5 @@ export interface Entry {
   content?: string;
   file_url?: string;
   created_at: string;
+  tags?: string[];
 }

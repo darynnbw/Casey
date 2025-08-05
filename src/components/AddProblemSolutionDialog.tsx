@@ -17,10 +17,10 @@ import { Lightbulb } from "lucide-react";
 interface AddProblemSolutionDialogProps {
   onAddProblemSolution: (
     title: string,
-    problemDescription: string,
-    occurrenceLocation: string,
-    possibleSolutions: string,
-    chosenSolution: string,
+    problem_description: string,
+    occurrence_location: string,
+    possible_solutions: string,
+    chosen_solution: string,
     outcome: string,
     tags: string[]
   ) => void;
@@ -29,10 +29,10 @@ interface AddProblemSolutionDialogProps {
 export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSolutionDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [problemDescription, setProblemDescription] = useState("");
-  const [occurrenceLocation, setOccurrenceLocation] = useState("");
-  const [possibleSolutions, setPossibleSolutions] = useState("");
-  const [chosenSolution, setChosenSolution] = useState("");
+  const [problem_description, setProblemDescription] = useState("");
+  const [occurrence_location, setOccurrenceLocation] = useState("");
+  const [possible_solutions, setPossibleSolutions] = useState("");
+  const [chosen_solution, setChosenSolution] = useState("");
   const [outcome, setOutcome] = useState("");
   const [tags, setTags] = useState("");
 
@@ -42,10 +42,10 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onAddProblemSolution(
         title.trim(),
-        problemDescription.trim(),
-        occurrenceLocation.trim(),
-        possibleSolutions.trim(),
-        chosenSolution.trim(),
+        problem_description.trim(),
+        occurrence_location.trim(),
+        possible_solutions.trim(),
+        chosen_solution.trim(),
         outcome.trim(),
         tagArray
       );
@@ -93,7 +93,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
               <Label htmlFor="problem-description" className="text-base">Problem Description (optional)</Label>
               <Textarea
                 id="problem-description"
-                value={problemDescription}
+                value={problem_description}
                 onChange={(e) => setProblemDescription(e.target.value)}
                 placeholder="Describe the problem in detail."
                 rows={3}
@@ -104,7 +104,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
               <Label htmlFor="occurrence-location" className="text-base">Occurrence Location (optional)</Label>
               <Input
                 id="occurrence-location"
-                value={occurrenceLocation}
+                value={occurrence_location}
                 onChange={(e) => setOccurrenceLocation(e.target.value)}
                 placeholder="e.g., /checkout, Login flow, User testing session"
                 className="rounded-lg"
@@ -114,7 +114,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
               <Label htmlFor="possible-solutions" className="text-base">Possible Solutions (optional)</Label>
               <Textarea
                 id="possible-solutions"
-                value={possibleSolutions}
+                value={possible_solutions}
                 onChange={(e) => setPossibleSolutions(e.target.value)}
                 placeholder="List potential ways to address the problem."
                 rows={3}
@@ -125,7 +125,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
               <Label htmlFor="chosen-solution" className="text-base">Chosen Solution (optional)</Label>
               <Textarea
                 id="chosen-solution"
-                value={chosenSolution}
+                value={chosen_solution}
                 onChange={(e) => setChosenSolution(e.target.value)}
                 placeholder="What solution was implemented?"
                 rows={3}

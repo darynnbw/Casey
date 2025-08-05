@@ -415,7 +415,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Problem Solutions
   const addProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at' | 'outcome'> & { createdAt: string }) => { // Removed outcome from Omit
       if (!session) throw new Error("User not authenticated");
       const { createdAt, ...rest } = problemSolutionData;
       const { data, error } = await supabase
@@ -434,7 +434,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id' | 'outcome'>) => { // Removed & { createdAt: string } and outcome from Omit
       if (!session) throw new Error("User not authenticated");
       const { id, created_at, ...rest } = problemSolutionData; // Destructure created_at
       const { data, error } = await supabase
@@ -633,7 +633,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
       <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
       <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
-      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, outcome, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, outcome, tags, createdAt })} />
+      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} />
       
       {/* Edit Dialogs */}
       {editingNote && (
@@ -673,7 +673,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           open={isEditProblemSolutionDialogOpen} 
           onOpenChange={setIsEditProblemSolutionDialogOpen} 
           initialData={editingProblemSolution} 
-          onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, outcome, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, outcome, tags, created_at: created_at })} 
+          onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at: created_at })} 
         />
       )}
     </div>

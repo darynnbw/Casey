@@ -24,8 +24,7 @@ interface AddProblemSolutionDialogProps {
     problem_description: string,
     occurrence_location: string,
     solution: string, // Merged field
-    outcome: string,
-    tags: string[],
+    tags: string[], // Removed outcome
     createdAt: string
   ) => void;
   open: boolean;
@@ -38,17 +37,15 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
   const [problem_description, setProblemDescription] = useState("");
   const [occurrence_location, setOccurrenceLocation] = useState("");
   const [solution, setSolution] = useState(""); // New merged state
-  const [outcome, setOutcome] = useState("");
   const [tags, setTags] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
   const [showOccurrenceLocation, setShowOccurrenceLocation] = useState(false);
   const [showSolution, setShowSolution] = useState(false); // New state for solution
-  const [showOutcome, setShowOutcome] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 4; // Title/Desc -> Location/Solution -> Outcome -> Tags/Date -> Review
+  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review (Removed Outcome step)
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
@@ -56,14 +53,12 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     setProblemDescription("");
     setOccurrenceLocation("");
     setSolution("");
-    setOutcome("");
     setTags("");
     setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
     setShowOccurrenceLocation(false);
     setShowSolution(false);
-    setShowOutcome(false);
     setShowTags(false);
   };
 
@@ -95,8 +90,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
         problem_description.trim(),
         occurrence_location.trim(),
         solution.trim(), // Pass the new merged solution
-        outcome.trim(),
-        tagArray,
+        tagArray, // Removed outcome
         selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
@@ -112,16 +106,14 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}
               {step === 2 && "Log Problem & Solution: Context & Solution"}
-              {step === 3 && "Log Problem & Solution: Outcome"}
-              {step === 4 && "Log Problem & Solution: Tags & Date"}
-              {step === 5 && "Review & Submit Problem/Solution"}
+              {step === 3 && "Log Problem & Solution: Tags & Date"}
+              {step === 4 && "Review & Submit Problem/Solution"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Document a UX problem and its description."}
               {step === 2 && "Provide context and detail the solution."}
-              {step === 3 && "Describe the outcome of the implemented solution."}
-              {step === 4 && "Add optional tags for categorization and set the date."}
-              {step === 5 && "Review your problem and solution before saving."}
+              {step === 3 && "Add optional tags for categorization and set the date."}
+              {step === 4 && "Review your problem and solution before saving."}
             </DialogDescription>
           </DialogHeader>
 
@@ -218,34 +210,6 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
 
             {step === 3 && (
               <>
-                {!showOutcome && (
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowOutcome(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
-                  >
-                    <Plus className="mr-1 h-4 w-4" /> Add outcome
-                  </Button>
-                )}
-                {showOutcome && (
-                  <div>
-                    <Label htmlFor="outcome" className="text-base mb-2 block">Outcome (optional)</Label>
-                    <Textarea
-                      id="outcome"
-                      value={outcome}
-                      onChange={(e) => setOutcome(e.target.value)}
-                      placeholder="What was the result of the implemented solution?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
-            {step === 4 && (
-              <>
                 {!showTags && (
                   <Button
                     type="button"
@@ -297,7 +261,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
               </>
             )}
 
-            {step === 5 && (
+            {step === 4 && (
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Title:</p>
@@ -319,12 +283,6 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                   <div>
                     <p className="text-sm font-medium text-foreground">Solution:</p>
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{solution || "N/A"}</p>
-                  </div>
-                )}
-                {outcome && (
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Outcome:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{outcome || "N/A"}</p>
                   </div>
                 )}
                 {tags && (

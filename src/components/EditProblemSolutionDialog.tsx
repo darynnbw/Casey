@@ -27,9 +27,8 @@ interface EditProblemSolutionDialogProps {
     problem_description: string,
     occurrence_location: string,
     solution: string,
-    outcome: string,
-    tags: string[],
-    created_at: string // Changed to created_at
+    tags: string[], // Removed outcome
+    created_at: string
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,17 +40,15 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
   const [problem_description, setProblemDescription] = useState(initialData?.problem_description || "");
   const [occurrence_location, setOccurrenceLocation] = useState(initialData?.occurrence_location || "");
   const [solution, setSolution] = useState(initialData?.solution || "");
-  const [outcome, setOutcome] = useState(initialData?.outcome || "");
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
   const [showOccurrenceLocation, setShowOccurrenceLocation] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [showOutcome, setShowOutcome] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 4;
+  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review (Removed Outcome step)
   const progress = (step / totalSteps) * 100;
 
   useEffect(() => {
@@ -60,13 +57,11 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
       setProblemDescription(initialData.problem_description || "");
       setOccurrenceLocation(initialData.occurrence_location || "");
       setSolution(initialData.solution || "");
-      setOutcome(initialData.outcome || "");
       setTags(initialData.tags?.join(', ') || "");
       setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
       setShowProblemDescription(!!initialData.problem_description);
       setShowOccurrenceLocation(!!initialData.occurrence_location);
       setShowSolution(!!initialData.solution);
-      setShowOutcome(!!initialData.outcome);
       setShowTags(!!initialData.tags && initialData.tags.length > 0);
       setStep(1); // Reset step when new initialData is provided
     }
@@ -77,14 +72,12 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
     setProblemDescription("");
     setOccurrenceLocation("");
     setSolution("");
-    setOutcome("");
     setTags("");
     setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
     setShowOccurrenceLocation(false);
     setShowSolution(false);
-    setShowOutcome(false);
     setShowTags(false);
   };
 
@@ -117,7 +110,6 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
         problem_description.trim(),
         occurrence_location.trim(),
         solution.trim(),
-        outcome.trim(),
         tagArray,
         selectedDate.toISOString()
       );
@@ -134,14 +126,12 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Problem & Solution: Problem Details"}
               {step === 2 && "Edit Problem & Solution: Context & Solution"}
-              {step === 3 && "Edit Problem & Solution: Outcome"}
-              {step === 4 && "Review & Update Problem/Solution"}
+              {step === 3 && "Review & Update Problem/Solution"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Modify the problem details."}
               {step === 2 && "Adjust context and solution details."}
-              {step === 3 && "Update the outcome of the solution."}
-              {step === 4 && "Review your changes before updating."}
+              {step === 3 && "Review your changes before updating."}
             </DialogDescription>
           </DialogHeader>
 
@@ -238,34 +228,6 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
 
             {step === 3 && (
               <>
-                {!showOutcome && (
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowOutcome(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
-                  >
-                    <Plus className="mr-1 h-4 w-4" /> Add outcome
-                  </Button>
-                )}
-                {showOutcome && (
-                  <div>
-                    <Label htmlFor="outcome" className="text-base mb-2 block">Outcome (optional)</Label>
-                    <Textarea
-                      id="outcome"
-                      value={outcome}
-                      onChange={(e) => setOutcome(e.target.value)}
-                      placeholder="What was the result of the implemented solution?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
-            {step === 4 && (
-              <>
                 {!showTags && (
                   <Button
                     type="button"
@@ -317,7 +279,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
               </>
             )}
 
-            {step === 5 && (
+            {step === 4 && (
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Title:</p>
@@ -339,12 +301,6 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                   <div>
                     <p className="text-sm font-medium text-foreground">Solution:</p>
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{solution || "N/A"}</p>
-                  </div>
-                )}
-                {outcome && (
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Outcome:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{outcome || "N/A"}</p>
                   </div>
                 )}
                 {tags && (

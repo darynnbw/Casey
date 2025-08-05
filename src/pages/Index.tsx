@@ -173,7 +173,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
-          <ResizableHandle withHandle />
+          {/* ResizableHandle removed */}
           <ResizablePanel defaultSize={80}>
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />

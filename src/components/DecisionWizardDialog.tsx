@@ -7,13 +7,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger, // Removed
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Plus } from "lucide-react";
+// import { CheckCircle2, Plus } from "lucide-react"; // Icons not needed here anymore
+import { Plus } from "lucide-react"; // Only Plus is needed for the "Add summary" etc. links
 import { cn } from "@/lib/utils";
 
 interface DecisionWizardDialogProps {
@@ -83,13 +84,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
-      <DialogTrigger asChild>
-        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
-        <Button variant="outline" className="rounded-lg">
-          <CheckCircle2 className="mr-2 h-4 w-4" />
-          Add Decision
-        </Button>
-      </DialogTrigger>
+      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
         <form onSubmit={handleSubmit}>
           <DialogHeader className="mb-6"> {/* Added margin-bottom */}

@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger, // Removed
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BookOpenText } from "lucide-react";
+// import { BookOpenText } from "lucide-react"; // Icon not needed here anymore
 
 interface AddJournalEntryDialogProps {
   onAddJournalEntry: (content: string, mood: string, tags: string[]) => void;
@@ -40,18 +40,13 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
       setContent("");
       setMood("");
       setTags("");
+      onOpenChange(false); // Close dialog on submit
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
-        <Button variant="outline" className="rounded-lg">
-          <BookOpenText className="mr-2 h-4 w-4" />
-          Add Journal Entry
-        </Button>
-      </DialogTrigger>
+      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
       <DialogContent className="sm:max-w-[500px] rounded-xl shadow-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

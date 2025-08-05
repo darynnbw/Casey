@@ -7,12 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger, // Removed
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MessageSquarePlus } from "lucide-react";
+// import { MessageSquarePlus } from "lucide-react"; // Icon not needed here anymore
 
 interface AddNoteDialogProps {
   onAddNote: (content: string, tags: string[], location: string) => void;
@@ -33,18 +33,13 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
       setContent("");
       setTags("");
       setLocation("");
+      onOpenChange(false); // Close dialog on submit
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
-        <Button variant="outline" className="rounded-lg">
-          <MessageSquarePlus className="mr-2 h-4 w-4" />
-          Add Note
-        </Button>
-      </DialogTrigger>
+      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
       <DialogContent className="sm:max-w-[425px] rounded-xl shadow-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

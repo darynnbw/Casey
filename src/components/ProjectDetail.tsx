@@ -6,7 +6,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { AddNoteDialog } from "./AddNoteDialog";
 import { AddScreenshotDialog } from "./AddScreenshotDialog";
-import { AddDecisionDialog } from "./AddDecisionDialog";
+import { DecisionWizardDialog } from "./DecisionWizardDialog"; // Updated import
 import { AddJournalEntryDialog } from "./AddJournalEntryDialog";
 import { AddProblemSolutionDialog } from "./AddProblemSolutionDialog";
 import { format } from "date-fns";
@@ -291,7 +291,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <div className="flex gap-2">
             <AddNoteDialog onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
             <AddScreenshotDialog onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
-            <AddDecisionDialog onAddDecision={(title, summary, context, alternatives, rationale, status, tags) => addDecisionMutation.mutate({ title, summary, context, alternatives, rationale, status, tags })} />
+            <DecisionWizardDialog onAddDecision={(title, summary, context, alternatives, rationale, status, tags) => addDecisionMutation.mutate({ title, summary, context, alternatives, rationale, status, tags })} />
             <AddJournalEntryDialog onAddJournalEntry={(content, mood, tags) => addJournalEntryMutation.mutate({ content, mood, tags })} />
             <AddProblemSolutionDialog onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags })} />
           </div>

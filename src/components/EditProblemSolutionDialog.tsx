@@ -29,7 +29,7 @@ interface EditProblemSolutionDialogProps {
     solution: string,
     outcome: string,
     tags: string[],
-    createdAt: string
+    created_at: string // Changed to created_at
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -374,7 +374,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
               </Button>
             ) : (
               <Button type="submit" className="rounded-lg px-4 py-2.5" disabled={!title.trim()}>
-                Save Problem/Solution
+                Update Problem/Solution
               </Button>
             )}
           </DialogFooter>

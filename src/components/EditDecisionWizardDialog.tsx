@@ -29,7 +29,7 @@ interface EditDecisionWizardDialogProps {
     alternatives: string,
     rationale: string,
     tags: string[],
-    createdAt: string,
+    created_at: string, // Changed to created_at
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;

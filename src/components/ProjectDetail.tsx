@@ -328,12 +328,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateDecisionMutation = useMutation({
-    mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'> & { createdAt: string }) => { // Adjusted type to omit project_id and user_id from input
+    mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
       if (!session) throw new Error("User not authenticated");
-      const { id, createdAt, ...rest } = decisionData;
+      const { id, created_at, ...rest } = decisionData; // Destructure created_at
       const { data, error } = await supabase
         .from("decisions")
-        .update({ ...rest, created_at: createdAt })
+        .update({ ...rest, created_at: created_at })
         .eq('id', id)
         .select();
       if (error) throw error;
@@ -381,12 +381,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'> & { createdAt: string }) => { // Adjusted type to omit project_id and user_id from input
+    mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
       if (!session) throw new Error("User not authenticated");
-      const { id, createdAt, ...rest } = journalEntryData;
+      const { id, created_at, ...rest } = journalEntryData; // Destructure created_at
       const { data, error } = await supabase
         .from("journal_entries")
-        .update({ ...rest, created_at: createdAt })
+        .update({ ...rest, created_at: created_at })
         .eq('id', id)
         .select();
       if (error) throw error;
@@ -434,12 +434,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'> & { createdAt: string }) => { // Adjusted type to omit project_id and user_id from input
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
       if (!session) throw new Error("User not authenticated");
-      const { id, createdAt, ...rest } = problemSolutionData;
+      const { id, created_at, ...rest } = problemSolutionData; // Destructure created_at
       const { data, error } = await supabase
         .from("problem_solutions")
-        .update({ ...rest, created_at: createdAt })
+        .update({ ...rest, created_at: created_at })
         .eq('id', id)
         .select();
       if (error) throw error;
@@ -452,6 +452,18 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       setEditingProblemSolution(null);
     },
     onError: () => showError("Could not update problem/solution."),
+  });
+
+  const deleteProblemSolutionMutation = useMutation({
+    mutationFn: async (problemSolutionId: string) => {
+      const { error } = await supabase.from('problem_solutions').delete().eq('id', problemSolutionId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['problem_solutions', project.id] });
+      showSuccess("Problem/Solution deleted.");
+    },
+    onError: () => showError("Could not delete problem/solution."),
   });
 
   if (isLoadingEntries || isLoadingDecisions || isLoadingJournalEntries || isLoadingProblemSolutions) {
@@ -645,7 +657,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           open={isEditDecisionWizardOpen} 
           onOpenChange={setIsEditDecisionWizardOpen} 
           initialData={editingDecision} 
-          onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, createdAt) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at: createdAt })} 
+          onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at: created_at })} 
         />
       )}
       {editingJournalEntry && (
@@ -653,7 +665,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           open={isEditJournalEntryDialogOpen} 
           onOpenChange={setIsEditJournalEntryDialogOpen} 
           initialData={editingJournalEntry} 
-          onUpdateJournalEntry={(id, content, mood, tags, createdAt) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: createdAt })} 
+          onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: created_at })} 
         />
       )}
       {editingProblemSolution && (
@@ -661,7 +673,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           open={isEditProblemSolutionDialogOpen} 
           onOpenChange={setIsEditProblemSolutionDialogOpen} 
           initialData={editingProblemSolution} 
-          onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, outcome, tags, createdAt) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, outcome, tags, created_at: createdAt })} 
+          onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, outcome, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, outcome, tags, created_at: created_at })} 
         />
       )}
     </div>

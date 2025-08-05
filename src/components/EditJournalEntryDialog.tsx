@@ -28,7 +28,7 @@ import { JournalEntry } from "@/types";
 
 interface EditJournalEntryDialogProps {
   initialData: JournalEntry | null;
-  onUpdateJournalEntry: (id: string, content: string, mood: string, tags: string[], createdAt: string) => void;
+  onUpdateJournalEntry: (id: string, content: string, mood: string, tags: string[], created_at: string) => void; // Changed to created_at
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

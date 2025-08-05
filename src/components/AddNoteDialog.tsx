@@ -16,10 +16,11 @@ import { MessageSquarePlus } from "lucide-react";
 
 interface AddNoteDialogProps {
   onAddNote: (content: string, tags: string[], location: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogProps) {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState("");
@@ -32,13 +33,13 @@ export function AddNoteDialog({ onAddNote }: AddNoteDialogProps) {
       setContent("");
       setTags("");
       setLocation("");
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
+        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
         <Button variant="outline" className="rounded-lg">
           <MessageSquarePlus className="mr-2 h-4 w-4" />
           Add Note

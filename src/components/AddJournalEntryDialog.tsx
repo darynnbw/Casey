@@ -23,10 +23,11 @@ import { BookOpenText } from "lucide-react";
 
 interface AddJournalEntryDialogProps {
   onAddJournalEntry: (content: string, mood: string, tags: string[]) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function AddJournalEntryDialog({ onAddJournalEntry }: AddJournalEntryDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }: AddJournalEntryDialogProps) {
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
   const [tags, setTags] = useState("");
@@ -39,13 +40,13 @@ export function AddJournalEntryDialog({ onAddJournalEntry }: AddJournalEntryDial
       setContent("");
       setMood("");
       setTags("");
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
+        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
         <Button variant="outline" className="rounded-lg">
           <BookOpenText className="mr-2 h-4 w-4" />
           Add Journal Entry

@@ -24,10 +24,11 @@ interface AddProblemSolutionDialogProps {
     outcome: string,
     tags: string[]
   ) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSolutionDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenChange }: AddProblemSolutionDialogProps) {
   const [title, setTitle] = useState("");
   const [problem_description, setProblemDescription] = useState("");
   const [occurrence_location, setOccurrenceLocation] = useState("");
@@ -56,13 +57,13 @@ export function AddProblemSolutionDialog({ onAddProblemSolution }: AddProblemSol
       setChosenSolution("");
       setOutcome("");
       setTags("");
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
+        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
         <Button variant="outline" className="rounded-lg">
           <Lightbulb className="mr-2 h-4 w-4" />
           Add Problem/Solution

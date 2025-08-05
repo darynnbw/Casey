@@ -23,10 +23,11 @@ interface DecisionWizardDialogProps {
     context: string, // This will be the rationale from the wizard
     alternatives: string,
   ) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProps) {
-  const [open, setOpen] = useState(false);
+export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: DecisionWizardDialogProps) {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -51,8 +52,8 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
     setShowAlternatives(false);
   };
 
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
+  const handleOpenChangeInternal = (isOpen: boolean) => {
+    onOpenChange(isOpen); // Propagate change to parent
     if (!isOpen) {
       resetForm();
     }
@@ -76,13 +77,14 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
       // The wizard's 'rationale' is mapped to 'context' in the Decision type.
       // The Decision type's 'rationale' field is left unused by this wizard.
       onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim());
-      handleOpenChange(false); // Close dialog and reset form
+      handleOpenChangeInternal(false); // Close dialog and reset form
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogTrigger asChild>
+        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
         <Button variant="outline" className="rounded-lg">
           <CheckCircle2 className="mr-2 h-4 w-4" />
           Add Decision

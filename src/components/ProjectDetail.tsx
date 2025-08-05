@@ -6,9 +6,10 @@ import { showSuccess, showError } from "@/utils/toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { AddNoteDialog } from "./AddNoteDialog";
 import { AddScreenshotDialog } from "./AddScreenshotDialog";
-import { DecisionWizardDialog } from "./DecisionWizardDialog"; // Updated import
+import { DecisionWizardDialog } from "./DecisionWizardDialog";
 import { AddJournalEntryDialog } from "./AddJournalEntryDialog";
 import { AddProblemSolutionDialog } from "./AddProblemSolutionDialog";
+import { AddActionsDropdown } from "./AddActionsDropdown"; // New import
 import { format } from "date-fns";
 import { Button } from "./ui/button";
 import { Trash2, Link2 } from "lucide-react";
@@ -41,6 +42,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   const queryClient = useQueryClient();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("notes-screenshots");
+
+  // State to control dialogs
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [isScreenshotDialogOpen, setIsScreenshotDialogOpen] = useState(false);
+  const [isDecisionWizardOpen, setIsDecisionWizardOpen] = useState(false);
+  const [isJournalEntryDialogOpen, setIsJournalEntryDialogOpen] = useState(false);
+  const [isProblemSolutionDialogOpen, setIsProblemSolutionDialogOpen] = useState(false);
 
   // Fetch Notes & Screenshots
   const fetchEntries = async () => {
@@ -132,6 +140,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
       showSuccess("Note added.");
+      setIsNoteDialogOpen(false);
     },
     onError: () => showError("Could not add note."),
   });
@@ -156,6 +165,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
       showSuccess("Screenshot added.");
+      setIsScreenshotDialogOpen(false);
     },
     onError: () => showError("Could not add screenshot."),
   });
@@ -190,6 +200,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["decisions", project.id] });
       showSuccess("Decision logged.");
+      setIsDecisionWizardOpen(false);
     },
     onError: () => showError("Could not log decision."),
   });
@@ -220,6 +231,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["journal_entries", project.id] });
       showSuccess("Journal entry added.");
+      setIsJournalEntryDialogOpen(false);
     },
     onError: () => showError("Could not add journal entry."),
   });
@@ -250,6 +262,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["problem_solutions", project.id] });
       showSuccess("Problem/Solution logged.");
+      setIsProblemSolutionDialogOpen(false);
     },
     onError: () => showError("Could not log problem/solution."),
   });
@@ -288,13 +301,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       <div className="p-6 border-b">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-          <div className="flex gap-2">
-            <AddNoteDialog onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
-            <AddScreenshotDialog onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
-            <DecisionWizardDialog onAddDecision={(title, summary, context, alternatives) => addDecisionMutation.mutate({ title, summary, context, alternatives })} />
-            <AddJournalEntryDialog onAddJournalEntry={(content, mood, tags) => addJournalEntryMutation.mutate({ content, mood, tags })} />
-            <AddProblemSolutionDialog onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags })} />
-          </div>
+          <AddActionsDropdown
+            onAddNote={() => setIsNoteDialogOpen(true)}
+            onAddScreenshot={() => setIsScreenshotDialogOpen(true)}
+            onAddDecision={() => setIsDecisionWizardOpen(true)}
+            onAddJournalEntry={() => setIsJournalEntryDialogOpen(true)}
+            onAddProblemSolution={() => setIsProblemSolutionDialogOpen(true)}
+          />
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
@@ -567,6 +580,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </TabsContent>
         </Tabs>
       </div>
+      {/* Dialogs are now controlled by state */}
+      <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
+      <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
+      <DecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives) => addDecisionMutation.mutate({ title, summary, context, alternatives })} />
+      <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags) => addJournalEntryMutation.mutate({ content, mood, tags })} />
+      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags })} />
     </div>
   );
 }

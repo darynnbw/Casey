@@ -17,10 +17,11 @@ import { Camera } from "lucide-react";
 
 interface AddScreenshotDialogProps {
   onAddScreenshot: (file: File, caption: string, tags: string[], location: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: AddScreenshotDialogProps) {
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState("");
@@ -51,13 +52,13 @@ export function AddScreenshotDialog({ onAddScreenshot }: AddScreenshotDialogProp
       setFile(null);
       setPreview(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
+        {/* This trigger is now handled by AddActionsDropdown, so it's not directly used here */}
         <Button variant="outline" className="rounded-lg">
           <Camera className="mr-2 h-4 w-4" />
           Add Screenshot

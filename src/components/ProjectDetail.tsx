@@ -651,7 +651,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       {editingJournalEntry && (
         <EditJournalEntryDialog 
           open={isEditJournalEntryDialogOpen} 
-          onOpenChange={setIsJournalEntryDialogOpen} 
+          onOpenChange={setIsEditJournalEntryDialogOpen} 
           initialData={editingJournalEntry} 
           onUpdateJournalEntry={(id, content, mood, tags, createdAt) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: createdAt })} 
         />

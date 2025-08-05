@@ -20,6 +20,7 @@ const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Removed sidebarCurrentSize as it's no longer needed with dynamic min/maxSize
   const { session } = useAuth();
   const queryClient = useQueryClient();
 
@@ -99,6 +100,11 @@ const Index = () => {
     deleteProjectMutation.mutate(projectId);
   };
 
+  // The toggleSidebar function is simplified as min/maxSize now control the snap
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -109,9 +115,9 @@ const Index = () => {
       <div className="flex-grow overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel 
-            defaultSize={25} // Increased default size for expanded view
-            minSize={5} // Min size for collapsed state
-            maxSize={isSidebarCollapsed ? 5 : 25} // Max size to match default when expanded, or min when collapsed
+            defaultSize={25} // Initial size for expanded view
+            minSize={isSidebarCollapsed ? 5 : 25} // Force min to 5 when collapsed, 25 when expanded
+            maxSize={isSidebarCollapsed ? 5 : 25} // Force max to 5 when collapsed, 25 when expanded
             collapsedSize={5}
             collapsible={true}
             onCollapse={() => setIsSidebarCollapsed(true)}
@@ -160,7 +166,7 @@ const Index = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    onClick={toggleSidebar} // Use the new toggle function
                     className="rounded-lg"
                   >
                     {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -173,7 +179,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
-          <ResizablePanel defaultSize={75}> {/* Adjusted default size for content panel */}
+          <ResizablePanel defaultSize={75}> 
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />
             ) : (

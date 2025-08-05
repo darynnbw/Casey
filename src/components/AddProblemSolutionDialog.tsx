@@ -113,7 +113,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6">
+          <DialogHeader className="mb-6 px-4"> {/* Added px-4 here */}
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}

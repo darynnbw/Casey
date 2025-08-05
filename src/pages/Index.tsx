@@ -110,8 +110,8 @@ const Index = () => {
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel 
             defaultSize={20} 
-            minSize={5} // Fixed min size for collapsed state
-            maxSize={20} // Fixed max size for expanded state
+            minSize={isSidebarCollapsed ? 5 : 15} 
+            maxSize={isSidebarCollapsed ? 5 : 30}
             collapsedSize={5}
             collapsible={true}
             onCollapse={() => setIsSidebarCollapsed(true)}
@@ -173,7 +173,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
-          {/* ResizableHandle removed */}
+          <ResizableHandle withHandle />
           <ResizablePanel defaultSize={80}>
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />

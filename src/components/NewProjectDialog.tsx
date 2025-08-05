@@ -34,7 +34,7 @@ export function NewProjectDialog({ onCreateProject, open, onOpenChange }: NewPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 px-4"> {/* Added px-4 here */}
+          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
             <DialogTitle className="text-xl font-semibold">Create New Project</DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               This will create a new project to house your notes and screenshots.

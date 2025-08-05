@@ -17,6 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NoteCard } from "./NoteCard";
+import { ScreenshotCard } from "./ScreenshotCard";
+import { DecisionCard } from "./DecisionCard";
+import { JournalEntryCard } from "./JournalEntryCard";
+import { ProblemSolutionCard } from "./ProblemSolutionCard";
 
 interface ProjectDetailProps {
   project: Project;
@@ -399,52 +404,14 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {entriesOnDate.map((entry, index) => (
-                        <div key={entry.id} className={cn(
-                          "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
-                          index % 2 === 0 ? "rotate-1" : "-rotate-1"
-                        )}>
-                          <div className="flex justify-between items-start">
-                            <p className="text-sm text-muted-foreground">{format(new Date(entry.created_at), "h:mm a")}</p>
-                            <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => deleteEntryMutation.mutate(entry)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          
-                          {/* Location pill moved here */}
-                          {entry.location && (
-                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
-                              {isUrl(entry.location) ? (
-                                <a href={entry.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
-                                  <Link2 className="h-3 w-3" />
-                                  {entry.location}
-                                </a>
-                              ) : (
-                                <span className="flex items-center gap-1">
-                                  <Link2 className="h-3 w-3" />
-                                  {entry.location}
-                                </span>
-                              )}
-                            </Badge>
-                          )}
-
-                          {entry.type === 'note' && <p className="whitespace-pre-wrap text-base text-foreground">{entry.content}</p>}
-                          {entry.type === 'screenshot' && (
-                            <div className="space-y-3">
-                              <img src={entry.file_url} alt={entry.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-white shadow-sm" />
-                              {entry.content && <p className="text-sm italic text-muted-foreground">{entry.content}</p>}
-                            </div>
-                          )}
-
-                          {entry.tags && entry.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-auto pt-2">
-                              {entry.tags.map((tag, tagIndex) => (
-                                <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                      {entriesOnDate.map((entry, index) => {
+                        if (entry.type === 'note') {
+                          return <NoteCard key={entry.id} note={entry} onDelete={deleteEntryMutation.mutate} index={index} />;
+                        } else if (entry.type === 'screenshot') {
+                          return <ScreenshotCard key={entry.id} screenshot={entry} onDelete={deleteEntryMutation.mutate} index={index} />;
+                        }
+                        return null; // Should not happen with proper filtering
+                      })}
                     </div>
                   </div>
                 ))}
@@ -465,45 +432,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {decisionsOnDate.map((decision, index) => (
-                        <div key={decision.id} className={cn(
-                          "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
-                          index % 2 === 0 ? "rotate-1" : "-rotate-1"
-                        )}>
-                          <div className="flex justify-between items-start">
-                            <p className="text-sm text-muted-foreground">{format(new Date(decision.created_at), "h:mm a")}</p>
-                            <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => deleteDecisionMutation.mutate(decision.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          <h4 className="text-lg font-semibold text-foreground">{decision.title}</h4>
-                          {decision.summary && <p className="text-sm text-muted-foreground">{decision.summary}</p>}
-                          {decision.context && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Context:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.context}</p>
-                            </div>
-                          )}
-                          {decision.alternatives && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Alternatives:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.alternatives}</p>
-                            </div>
-                          )}
-                          {decision.rationale && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Rationale:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.rationale}</p>
-                            </div>
-                          )}
-                          {/* Removed decision.status display */}
-                          {decision.tags && decision.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-auto pt-2">
-                              {decision.tags.map((tag, tagIndex) => (
-                                <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <DecisionCard key={decision.id} decision={decision} onDelete={deleteDecisionMutation.mutate} index={index} />
                       ))}
                     </div>
                   </div>
@@ -525,30 +454,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {journalEntriesOnDate.map((journalEntry, index) => (
-                        <div key={journalEntry.id} className={cn(
-                          "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
-                          index % 2 === 0 ? "rotate-1" : "-rotate-1"
-                        )}>
-                          <div className="flex justify-between items-start">
-                            <p className="text-sm text-muted-foreground">{format(new Date(journalEntry.created_at), "h:mm a")}</p>
-                            <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => deleteJournalEntryMutation.mutate(journalEntry.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          <p className="whitespace-pre-wrap text-base text-foreground">{journalEntry.content}</p>
-                          {journalEntry.mood && (
-                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
-                              Mood: {journalEntry.mood}
-                            </Badge>
-                          )}
-                          {journalEntry.tags && journalEntry.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-auto pt-2">
-                              {journalEntry.tags.map((tag, tagIndex) => (
-                                <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <JournalEntryCard key={journalEntry.id} journalEntry={journalEntry} onDelete={deleteJournalEntryMutation.mutate} index={index} />
                       ))}
                     </div>
                   </div>
@@ -570,49 +476,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {problemSolutionsOnDate.map((ps, index) => (
-                        <div key={ps.id} className={cn(
-                          "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
-                          index % 2 === 0 ? "rotate-1" : "-rotate-1"
-                        )}>
-                          <div className="flex justify-between items-start">
-                            <p className="text-sm text-muted-foreground">{format(new Date(ps.created_at), "h:mm a")}</p>
-                            <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => deleteProblemSolutionMutation.mutate(ps.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          <h4 className="text-lg font-semibold text-foreground">{ps.title}</h4>
-                          {/* Occurrence location pill moved here */}
-                          {ps.occurrence_location && (
-                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
-                              Location: {ps.occurrence_location}
-                            </Badge>
-                          )}
-                          {ps.problem_description && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Problem:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.problem_description}</p>
-                            </div>
-                          )}
-                          {ps.solution && ( // Display the new merged solution
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Solution:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.solution}</p>
-                            </div>
-                          )}
-                          {ps.outcome && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Outcome:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.outcome}</p>
-                            </div>
-                          )}
-                          {ps.tags && ps.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-auto pt-2">
-                              {ps.tags.map((tag, tagIndex) => (
-                                <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <ProblemSolutionCard key={ps.id} problemSolution={ps} onDelete={deleteProblemSolutionMutation.mutate} index={index} />
                       ))}
                     </div>
                   </div>

@@ -1,13 +1,14 @@
 import { Entry } from "@/types";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
-import { Trash2, Link2 } from "lucide-react";
+import { Trash2, Link2, Pencil } from "lucide-react"; // Added Pencil icon
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface ScreenshotCardProps {
   screenshot: Entry;
   onDelete: (screenshot: Entry) => void;
+  onEdit: (screenshot: Entry) => void; // Added onEdit prop
   index: number; // For rotation styling
 }
 
@@ -15,7 +16,7 @@ const isUrl = (text: string) => {
   return text.startsWith('http://') || text.startsWith('https://');
 }
 
-export function ScreenshotCard({ screenshot, onDelete, index }: ScreenshotCardProps) {
+export function ScreenshotCard({ screenshot, onDelete, onEdit, index }: ScreenshotCardProps) {
   return (
     <div key={screenshot.id} className={cn(
       "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
@@ -23,9 +24,14 @@ export function ScreenshotCard({ screenshot, onDelete, index }: ScreenshotCardPr
     )}>
       <div className="flex justify-between items-start">
         <p className="text-sm text-muted-foreground">{format(new Date(screenshot.created_at), "h:mm a")}</p>
-        <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onDelete(screenshot)}>
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
+        <div className="flex gap-1"> {/* Group buttons */}
+          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onEdit(screenshot)}>
+            <Pencil className="h-4 w-4 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onDelete(screenshot)}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
       </div>
 
       {screenshot.location && (

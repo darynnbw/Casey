@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,48 +17,79 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { Decision } from "@/types";
 
-interface DecisionWizardDialogProps {
-  onAddDecision: (
+interface EditDecisionWizardDialogProps {
+  initialData: Decision | null;
+  onUpdateDecision: (
+    id: string,
     title: string,
     summary: string,
-    context: string, // This will be the rationale from the wizard
+    context: string,
     alternatives: string,
+    rationale: string,
+    tags: string[],
     createdAt: string,
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: DecisionWizardDialogProps) {
+export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, onOpenChange }: EditDecisionWizardDialogProps) {
   const [step, setStep] = useState(1);
-  const [title, setTitle] = useState("");
-  const [summary, setSummary] = useState("");
-  const [rationale, setRationale] = useState(""); // "Why this decision?"
-  const [alternatives, setAlternatives] = useState(""); // "Alternatives Explored"
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [summary, setSummary] = useState(initialData?.summary || "");
+  const [context, setContext] = useState(initialData?.context || ""); // Problem/Context
+  const [alternatives, setAlternatives] = useState(initialData?.alternatives || "");
+  const [rationale, setRationale] = useState(initialData?.rationale || ""); // Why this decision?
+  const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
   const [showSummary, setShowSummary] = useState(false);
-  const [showRationale, setShowRationale] = useState(false);
+  const [showContext, setShowContext] = useState(false);
   const [showAlternatives, setShowAlternatives] = useState(false);
+  const [showRationale, setShowRationale] = useState(false);
+  const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 3;
+  const totalSteps = 4; // Title/Summary -> Context/Alternatives -> Rationale/Tags -> Date -> Review
   const progress = (step / totalSteps) * 100;
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || "");
+      setSummary(initialData.summary || "");
+      setContext(initialData.context || "");
+      setAlternatives(initialData.alternatives || "");
+      setRationale(initialData.rationale || "");
+      setTags(initialData.tags?.join(', ') || "");
+      setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
+      setShowSummary(!!initialData.summary);
+      setShowContext(!!initialData.context);
+      setShowAlternatives(!!initialData.alternatives);
+      setShowRationale(!!initialData.rationale);
+      setShowTags(!!initialData.tags && initialData.tags.length > 0);
+      setStep(1); // Reset step when new initialData is provided
+    }
+  }, [initialData]);
 
   const resetForm = () => {
     setTitle("");
     setSummary("");
-    setRationale("");
+    setContext("");
     setAlternatives("");
+    setRationale("");
+    setTags("");
     setSelectedDate(new Date());
     setStep(1);
     setShowSummary(false);
-    setShowRationale(false);
+    setShowContext(false);
     setShowAlternatives(false);
+    setShowRationale(false);
+    setShowTags(false);
   };
 
   const handleOpenChangeInternal = (isOpen: boolean) => {
-    onOpenChange(isOpen); // Propagate change to parent
+    onOpenChange(isOpen);
     if (!isOpen) {
       resetForm();
     }
@@ -78,34 +109,43 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim() && selectedDate) {
-      // The wizard's 'rationale' is mapped to 'context' in the Decision type.
-      // The Decision type's 'rationale' field is left unused by this wizard.
-      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim(), selectedDate.toISOString());
-      handleOpenChangeInternal(false); // Close dialog and reset form
+    if (initialData && title.trim() && selectedDate) {
+      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
+      onUpdateDecision(
+        initialData.id,
+        title.trim(),
+        summary.trim(),
+        context.trim(),
+        alternatives.trim(),
+        rationale.trim(),
+        tagArray,
+        selectedDate.toISOString()
+      );
+      handleOpenChangeInternal(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
-      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
-      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
+      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 px-4"> {/* Added px-4 here */}
+          <DialogHeader className="mb-6 px-4">
             <Progress value={progress} className="w-full h-2 mb-4" />
-            <DialogTitle className="text-xl font-semibold"> {/* Smaller font, lighter weight */}
-              {step === 1 && "Log New Decision: Details"}
-              {step === 2 && "Log New Decision: Context"}
-              {step === 3 && "Review & Submit Decision"}
+            <DialogTitle className="text-xl font-semibold">
+              {step === 1 && "Edit Decision: Details"}
+              {step === 2 && "Edit Decision: Context & Alternatives"}
+              {step === 3 && "Edit Decision: Rationale & Tags"}
+              {step === 4 && "Review & Update Decision"}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground font-normal"> {/* Lighter font weight */}
-              {step === 1 && "Provide the main details for your decision."}
-              {step === 2 && "Explain the reasoning and alternatives considered, and set the date."}
-              {step === 3 && "Review your decision before saving."}
+            <DialogDescription className="text-muted-foreground font-normal">
+              {step === 1 && "Modify the main details for your decision."}
+              {step === 2 && "Adjust the problem context and alternatives considered."}
+              {step === 3 && "Explain the reasoning and add tags."}
+              {step === 4 && "Review your changes before updating."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6 py-4"> {/* Increased gap and vertical padding */}
+          <div className="grid gap-6 py-4">
             {step === 1 && (
               <>
                 <div>
@@ -117,7 +157,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                     placeholder="e.g., Chose sticky header for navigation"
                     autoFocus
                     required
-                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                   />
                 </div>
                 {!showSummary && (
@@ -139,7 +179,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                       onChange={(e) => setSummary(e.target.value)}
                       placeholder="A brief overview of the decision."
                       rows={2}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                     />
                   </div>
                 )}
@@ -147,6 +187,57 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
             )}
 
             {step === 2 && (
+              <>
+                {!showContext && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowContext(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add context
+                  </Button>
+                )}
+                {showContext && (
+                  <div>
+                    <Label htmlFor="decision-context" className="text-base mb-2 block">Problem/Context (optional)</Label>
+                    <Textarea
+                      id="decision-context"
+                      value={context}
+                      onChange={(e) => setContext(e.target.value)}
+                      placeholder="What problem or situation led to this decision?"
+                      rows={3}
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                    />
+                  </div>
+                )}
+                {!showAlternatives && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowAlternatives(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add alternatives considered
+                  </Button>
+                )}
+                {showAlternatives && (
+                  <div>
+                    <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Considered (optional)</Label>
+                    <Textarea
+                      id="decision-alternatives"
+                      value={alternatives}
+                      onChange={(e) => setAlternatives(e.target.value)}
+                      placeholder="What other options were explored?"
+                      rows={3}
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {step === 3 && (
               <>
                 {!showRationale && (
                   <Button
@@ -167,31 +258,31 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                       onChange={(e) => setRationale(e.target.value)}
                       placeholder="Explain the reasoning behind the chosen decision."
                       rows={4}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                     />
                   </div>
                 )}
-                {!showAlternatives && (
+                {!showTags && (
                   <Button
                     type="button"
                     variant="link"
-                    onClick={() => setShowAlternatives(true)}
+                    onClick={() => setShowTags(true)}
                     className="text-primary justify-start px-0 h-auto text-sm"
                   >
-                    <Plus className="mr-1 h-4 w-4" /> Add alternatives explored
+                    <Plus className="mr-1 h-4 w-4" /> Add tags
                   </Button>
                 )}
-                {showAlternatives && (
+                {showTags && (
                   <div>
-                    <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Explored (optional)</Label>
-                    <Textarea
-                      id="decision-alternatives"
-                      value={alternatives}
-                      onChange={(e) => setAlternatives(e.target.value)}
-                      placeholder="What other options were explored?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                    <Label htmlFor="decision-tags" className="text-base mb-2 block">Tags (optional)</Label>
+                    <Input
+                      id="decision-tags"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      placeholder="e.g., Navigation, Mobile, Accessibility"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                     />
+                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -222,7 +313,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
               </>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Title:</p>
@@ -234,16 +325,28 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{summary || "N/A"}</p>
                   </div>
                 )}
+                {context && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Problem/Context:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{context || "N/A"}</p>
+                  </div>
+                )}
+                {alternatives && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Alternatives Considered:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
+                  </div>
+                )}
                 {rationale && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Why this decision?:</p>
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{rationale || "N/A"}</p>
                   </div>
                 )}
-                {alternatives && (
+                {tags && (
                   <div>
-                    <p className="text-sm font-medium text-foreground">Alternatives Explored:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
+                    <p className="text-sm font-medium text-foreground">Tags:</p>
+                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
                   </div>
                 )}
                 <div>
@@ -254,20 +357,20 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
             )}
           </div>
 
-          <DialogFooter className="flex justify-between items-center pt-6"> {/* Increased padding-top */}
+          <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
               <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
                 Back
               </Button>
             )}
-            <div className="flex-grow" /> {/* Spacer */}
+            <div className="flex-grow" />
             {step < totalSteps ? (
               <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5">
                 Next
               </Button>
             ) : (
               <Button type="submit" className="rounded-lg px-4 py-2.5">
-                Save Decision
+                Update Decision
               </Button>
             )}
           </DialogFooter>

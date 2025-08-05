@@ -1,17 +1,18 @@
 import { JournalEntry } from "@/types";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react"; // Added Pencil icon
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface JournalEntryCardProps {
   journalEntry: JournalEntry;
   onDelete: (journalEntryId: string) => void;
+  onEdit: (journalEntry: JournalEntry) => void; // Added onEdit prop
   index: number; // For rotation styling
 }
 
-export function JournalEntryCard({ journalEntry, onDelete, index }: JournalEntryCardProps) {
+export function JournalEntryCard({ journalEntry, onDelete, onEdit, index }: JournalEntryCardProps) {
   return (
     <div key={journalEntry.id} className={cn(
       "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none p-6 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
@@ -19,9 +20,14 @@ export function JournalEntryCard({ journalEntry, onDelete, index }: JournalEntry
     )}>
       <div className="flex justify-between items-start">
         <p className="text-sm text-muted-foreground">{format(new Date(journalEntry.created_at), "h:mm a")}</p>
-        <Button variant="ghost" size="icon" className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onDelete(journalEntry.id)}>
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
+        <div className="flex gap-1"> {/* Group buttons */}
+          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onEdit(journalEntry)}>
+            <Pencil className="h-4 w-4 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onDelete(journalEntry.id)}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
       </div>
       <p className="whitespace-pre-wrap text-base text-foreground">{journalEntry.content}</p>
       {journalEntry.mood && (

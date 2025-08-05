@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  // DialogTrigger, // Removed
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { BookOpenText } from "lucide-react"; // Icon not needed here anymore
+import { Progress } from "@/components/ui/progress";
+import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AddJournalEntryDialogProps {
   onAddJournalEntry: (content: string, mood: string, tags: string[]) => void;
@@ -28,76 +29,182 @@ interface AddJournalEntryDialogProps {
 }
 
 export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }: AddJournalEntryDialogProps) {
+  const [step, setStep] = useState(1);
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
   const [tags, setTags] = useState("");
+
+  const [showMood, setShowMood] = useState(false);
+  const [showTags, setShowTags] = useState(false);
+
+  const totalSteps = 3; // Content -> Mood/Tags -> Review
+  const progress = (step / totalSteps) * 100;
+
+  const resetForm = () => {
+    setContent("");
+    setMood("");
+    setTags("");
+    setStep(1);
+    setShowMood(false);
+    setShowTags(false);
+  };
+
+  const handleOpenChangeInternal = (isOpen: boolean) => {
+    onOpenChange(isOpen);
+    if (!isOpen) {
+      resetForm();
+    }
+  };
+
+  const handleNext = () => {
+    if (step === 1 && !content.trim()) {
+      alert("Journal entry content is required.");
+      return;
+    }
+    setStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => {
+    setStep((prev) => prev - 1);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (content.trim()) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onAddJournalEntry(content.trim(), mood, tagArray);
-      setContent("");
-      setMood("");
-      setTags("");
-      onOpenChange(false); // Close dialog on submit
+      handleOpenChangeInternal(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
-      <DialogContent className="sm:max-w-[500px] rounded-xl shadow-lg">
+    <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
+      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">New Journal Entry</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Log your thoughts, progress, or observations for today.
+          <DialogHeader className="mb-6">
+            <Progress value={progress} className="w-full h-2 mb-4" />
+            <DialogTitle className="text-xl font-semibold">
+              {step === 1 && "New Journal Entry: Content"}
+              {step === 2 && "New Journal Entry: Details"}
+              {step === 3 && "Review & Submit Entry"}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground font-normal">
+              {step === 1 && "Log your thoughts, progress, or observations for today."}
+              {step === 2 && "Add optional mood and tags for context."}
+              {step === 3 && "Review your journal entry before saving."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-6">
-            <div>
-              <Label htmlFor="journal-content" className="text-base">Entry</Label>
-              <Textarea
-                id="journal-content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="What's on your mind today? What did you work on?"
-                rows={7}
-                autoFocus
-                required
-                className="rounded-lg"
-              />
-            </div>
-            <div>
-              <Label htmlFor="journal-mood" className="text-base">Mood (optional)</Label>
-              <Select value={mood} onValueChange={setMood}>
-                <SelectTrigger className="w-full rounded-lg">
-                  <SelectValue placeholder="How are you feeling?" />
-                </SelectTrigger>
-                <SelectContent className="rounded-lg">
-                  <SelectItem value="happy">😊 Happy</SelectItem>
-                  <SelectItem value="neutral">😐 Neutral</SelectItem>
-                  <SelectItem value="frustrated">😖 Frustrated</SelectItem>
-                  <SelectItem value="productive">🚀 Productive</SelectItem>
-                  <SelectItem value="thoughtful">🤔 Thoughtful</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="journal-tags" className="text-base">Tags (optional)</Label>
-              <Input
-                id="journal-tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="e.g., Meeting, Client Feedback, Brainstorm"
-                className="rounded-lg"
-              />
-              <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
-            </div>
+
+          <div className="grid gap-6 py-4">
+            {step === 1 && (
+              <div>
+                <Label htmlFor="journal-content" className="text-base mb-2 block">Entry</Label>
+                <Textarea
+                  id="journal-content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="What's on your mind today? What did you work on?"
+                  rows={7}
+                  autoFocus
+                  required
+                  className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                />
+              </div>
+            )}
+
+            {step === 2 && (
+              <>
+                {!showMood && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowMood(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add mood
+                  </Button>
+                )}
+                {showMood && (
+                  <div>
+                    <Label htmlFor="journal-mood" className="text-base mb-2 block">Mood (optional)</Label>
+                    <Select value={mood} onValueChange={setMood}>
+                      <SelectTrigger className="w-full rounded-md px-3 py-2 border border-input/70 focus:border-primary">
+                        <SelectValue placeholder="How are you feeling?" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg">
+                        <SelectItem value="happy">😊 Happy</SelectItem>
+                        <SelectItem value="neutral">😐 Neutral</SelectItem>
+                        <SelectItem value="frustrated">😖 Frustrated</SelectItem>
+                        <SelectItem value="productive">🚀 Productive</SelectItem>
+                        <SelectItem value="thoughtful">🤔 Thoughtful</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {!showTags && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowTags(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add tags
+                  </Button>
+                )}
+                {showTags && (
+                  <div>
+                    <Label htmlFor="journal-tags" className="text-base mb-2 block">Tags (optional)</Label>
+                    <Input
+                      id="journal-tags"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      placeholder="e.g., Meeting, Client Feedback, Brainstorm"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Entry Content:</p>
+                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{content || "N/A"}</p>
+                </div>
+                {mood && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Mood:</p>
+                    <p className="text-base text-muted-foreground">{mood || "N/A"}</p>
+                  </div>
+                )}
+                {tags && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Tags:</p>
+                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <DialogFooter>
-            <Button type="submit" className="rounded-lg px-4 py-2.5">Save Entry</Button>
+
+          <DialogFooter className="flex justify-between items-center pt-6">
+            {step > 1 && (
+              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
+                Back
+              </Button>
+            )}
+            <div className="flex-grow" />
+            {step < totalSteps ? (
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5">
+                Next
+              </Button>
+            ) : (
+              <Button type="submit" className="rounded-lg px-4 py-2.5">
+                Save Entry
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

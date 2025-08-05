@@ -9,7 +9,7 @@ import { AddScreenshotDialog } from "./AddScreenshotDialog";
 import { DecisionWizardDialog } from "./DecisionWizardDialog";
 import { AddJournalEntryDialog } from "./AddJournalEntryDialog";
 import { AddProblemSolutionDialog } from "./AddProblemSolutionDialog";
-import { AddActionsDropdown } from "./AddActionsDropdown"; // New import
+import { AddActionsDropdown } from "./AddActionsDropdown";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
 import { Trash2, Link2 } from "lucide-react";
@@ -36,6 +36,43 @@ const groupEntriesByDate = <T extends { created_at: string }>(entries: T[]) => {
 const isUrl = (text: string) => {
   return text.startsWith('http://') || text.startsWith('https://');
 }
+
+// Motivational messages for each section
+const notesScreenshotsMessages = [
+  "Capture every idea, big or small. Your next breakthrough starts with a note!",
+  "A picture is worth a thousand words. Document your progress with a screenshot!",
+  "Don't let brilliant insights fade. Jot them down here!",
+  "Your project's story unfolds with every note and screenshot you add.",
+  "Visualize your journey. Start adding notes and screenshots today!",
+];
+
+const decisionsMessages = [
+  "Every great product is built on thoughtful decisions. Log yours here!",
+  "Clarity comes from documenting choices. What's your next big decision?",
+  "Make your design process transparent. Start logging decisions now!",
+  "Future you will thank past you for documenting these insights.",
+  "Decisions shape destiny. Record the turning points of your project.",
+];
+
+const journalEntriesMessages = [
+  "Reflect and grow. Your daily insights are valuable here.",
+  "Track your journey, one entry at a time. What did you learn today?",
+  "A space for your thoughts, challenges, and triumphs. Start journaling!",
+  "Your personal log of progress and reflections. Add an entry!",
+  "Document your process, not just the outcome. Journal your way to success.",
+];
+
+const problemSolutionsMessages = [
+  "Turn challenges into triumphs. Document your problem-solving journey!",
+  "Every problem has a solution. Share how you conquered yours.",
+  "Learn from every hurdle. Log your problems and their brilliant solutions.",
+  "Your repository of challenges overcome. What problem did you solve today?",
+  "Build a knowledge base of solutions. Start documenting problems now!",
+];
+
+const getRandomMessage = (messages: string[]) => {
+  return messages[Math.floor(Math.random() * messages.length)];
+};
 
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
@@ -344,7 +381,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
             {Object.keys(groupedEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">No notes or screenshots yet.</p>
+                <p className="text-lg">{getRandomMessage(notesScreenshotsMessages)}</p>
                 <p className="text-md mt-2">Add one to get started.</p>
               </div>
             ) : (
@@ -408,7 +445,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <TabsContent value="decisions">
             {Object.keys(groupedDecisions).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">No decisions logged yet.</p>
+                <p className="text-lg">{getRandomMessage(decisionsMessages)}</p>
                 <p className="text-md mt-2">Add a decision to document your design choices.</p>
               </div>
             ) : (
@@ -468,7 +505,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <TabsContent value="journal-entries">
             {Object.keys(groupedJournalEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">No journal entries yet.</p>
+                <p className="text-lg">{getRandomMessage(journalEntriesMessages)}</p>
                 <p className="text-md mt-2">Add an entry to log your thoughts and progress.</p>
               </div>
             ) : (
@@ -513,7 +550,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <TabsContent value="problem-solutions">
             {Object.keys(groupedProblemSolutions).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">No problems or solutions logged yet.</p>
+                <p className="text-lg">{getRandomMessage(problemSolutionsMessages)}</p>
                 <p className="text-md mt-2">Add one to document UX challenges and their resolutions.</p>
               </div>
             ) : (

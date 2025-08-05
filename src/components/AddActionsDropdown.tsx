@@ -120,7 +120,7 @@ export function AddActionsDropdown({
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button variant="default" className="rounded-lg px-4 py-2.5 text-base font-semibold shadow-sm hover:shadow-md transition-shadow">
+            <Button variant="default" className="rounded-lg px-4 py-2.5 text-base font-semibold shadow-sm hover:shadow-md transition-shadow w-56">
               <Plus className="mr-2 h-4 w-4" />
               Add
             </Button>

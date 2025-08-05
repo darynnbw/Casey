@@ -109,9 +109,9 @@ const Index = () => {
       <div className="flex-grow overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel 
-            defaultSize={20} 
-            minSize={isSidebarCollapsed ? 5 : 15} 
-            maxSize={isSidebarCollapsed ? 5 : 30}
+            defaultSize={25} // Increased default size for expanded view
+            minSize={5} // Min size for collapsed state
+            maxSize={isSidebarCollapsed ? 5 : 25} // Max size to match default when expanded, or min when collapsed
             collapsedSize={5}
             collapsible={true}
             onCollapse={() => setIsSidebarCollapsed(true)}
@@ -173,8 +173,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
-          {/* ResizableHandle removed */}
-          <ResizablePanel defaultSize={80}>
+          <ResizablePanel defaultSize={75}> {/* Adjusted default size for content panel */}
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />
             ) : (

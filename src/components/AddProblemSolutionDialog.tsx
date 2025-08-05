@@ -23,8 +23,7 @@ interface AddProblemSolutionDialogProps {
     title: string,
     problem_description: string,
     occurrence_location: string,
-    possible_solutions: string,
-    chosen_solution: string,
+    solution: string, // Merged field
     outcome: string,
     tags: string[],
     createdAt: string
@@ -38,36 +37,32 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
   const [title, setTitle] = useState("");
   const [problem_description, setProblemDescription] = useState("");
   const [occurrence_location, setOccurrenceLocation] = useState("");
-  const [possible_solutions, setPossibleSolutions] = useState("");
-  const [chosen_solution, setChosenSolution] = useState("");
+  const [solution, setSolution] = useState(""); // New merged state
   const [outcome, setOutcome] = useState("");
   const [tags, setTags] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
   const [showOccurrenceLocation, setShowOccurrenceLocation] = useState(false);
-  const [showPossibleSolutions, setShowPossibleSolutions] = useState(false);
-  const [showChosenSolution, setShowChosenSolution] = useState(false);
+  const [showSolution, setShowSolution] = useState(false); // New state for solution
   const [showOutcome, setShowOutcome] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 5; // Title/Desc -> Location/Possible -> Chosen/Outcome -> Tags -> Review
+  const totalSteps = 4; // Title/Desc -> Location/Solution -> Outcome -> Tags/Date -> Review
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
     setTitle("");
     setProblemDescription("");
     setOccurrenceLocation("");
-    setPossibleSolutions("");
-    setChosenSolution("");
+    setSolution("");
     setOutcome("");
     setTags("");
     setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
     setShowOccurrenceLocation(false);
-    setShowPossibleSolutions(false);
-    setShowChosenSolution(false);
+    setShowSolution(false);
     setShowOutcome(false);
     setShowTags(false);
   };
@@ -99,8 +94,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
         title.trim(),
         problem_description.trim(),
         occurrence_location.trim(),
-        possible_solutions.trim(),
-        chosen_solution.trim(),
+        solution.trim(), // Pass the new merged solution
         outcome.trim(),
         tagArray,
         selectedDate.toISOString()
@@ -113,19 +107,19 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 px-4"> {/* Added px-4 here */}
+          <DialogHeader className="mb-6 px-4">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}
-              {step === 2 && "Log Problem & Solution: Context & Options"}
-              {step === 3 && "Log Problem & Solution: Resolution"}
+              {step === 2 && "Log Problem & Solution: Context & Solution"}
+              {step === 3 && "Log Problem & Solution: Outcome"}
               {step === 4 && "Log Problem & Solution: Tags & Date"}
               {step === 5 && "Review & Submit Problem/Solution"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Document a UX problem and its description."}
-              {step === 2 && "Provide context and list possible solutions."}
-              {step === 3 && "Detail the chosen solution and its outcome."}
+              {step === 2 && "Provide context and detail the solution."}
+              {step === 3 && "Describe the outcome of the implemented solution."}
               {step === 4 && "Add optional tags for categorization and set the date."}
               {step === 5 && "Review your problem and solution before saving."}
             </DialogDescription>
@@ -196,24 +190,24 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                     />
                   </div>
                 )}
-                {!showPossibleSolutions && (
+                {!showSolution && (
                   <Button
                     type="button"
                     variant="link"
-                    onClick={() => setShowPossibleSolutions(true)}
+                    onClick={() => setShowSolution(true)}
                     className="text-primary justify-start px-0 h-auto text-sm"
                   >
-                    <Plus className="mr-1 h-4 w-4" /> Add possible solutions
+                    <Plus className="mr-1 h-4 w-4" /> Add solution
                   </Button>
                 )}
-                {showPossibleSolutions && (
+                {showSolution && (
                   <div>
-                    <Label htmlFor="possible-solutions" className="text-base mb-2 block">Possible Solutions (optional)</Label>
+                    <Label htmlFor="solution" className="text-base mb-2 block">Solution (optional)</Label>
                     <Textarea
-                      id="possible-solutions"
-                      value={possible_solutions}
-                      onChange={(e) => setPossibleSolutions(e.target.value)}
-                      placeholder="List potential ways to address the problem."
+                      id="solution"
+                      value={solution}
+                      onChange={(e) => setSolution(e.target.value)}
+                      placeholder="Describe the implemented solution."
                       rows={3}
                       className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                     />
@@ -224,29 +218,6 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
 
             {step === 3 && (
               <>
-                {!showChosenSolution && (
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowChosenSolution(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
-                  >
-                    <Plus className="mr-1 h-4 w-4" /> Add chosen solution
-                  </Button>
-                )}
-                {showChosenSolution && (
-                  <div>
-                    <Label htmlFor="chosen-solution" className="text-base mb-2 block">Chosen Solution (optional)</Label>
-                    <Textarea
-                      id="chosen-solution"
-                      value={chosen_solution}
-                      onChange={(e) => setChosenSolution(e.target.value)}
-                      placeholder="What solution was implemented?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
-                    />
-                  </div>
-                )}
                 {!showOutcome && (
                   <Button
                     type="button"
@@ -344,16 +315,10 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                     <p className="text-base text-muted-foreground">{occurrence_location || "N/A"}</p>
                   </div>
                 )}
-                {possible_solutions && (
+                {solution && ( // Display the new merged solution
                   <div>
-                    <p className="text-sm font-medium text-foreground">Possible Solutions:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{possible_solutions || "N/A"}</p>
-                  </div>
-                )}
-                {chosen_solution && (
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Chosen Solution:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{chosen_solution || "N/A"}</p>
+                    <p className="text-sm font-medium text-foreground">Solution:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{solution || "N/A"}</p>
                   </div>
                 )}
                 {outcome && (

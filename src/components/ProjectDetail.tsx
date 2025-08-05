@@ -411,6 +411,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                             </Button>
                           </div>
                           
+                          {/* Location pill moved here */}
                           {entry.location && (
                             <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
                               {isUrl(entry.location) ? (
@@ -580,27 +581,22 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                             </Button>
                           </div>
                           <h4 className="text-lg font-semibold text-foreground">{ps.title}</h4>
+                          {/* Occurrence location pill moved here */}
+                          {ps.occurrence_location && (
+                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
+                              Location: {ps.occurrence_location}
+                            </Badge>
+                          )}
                           {ps.problem_description && (
                             <div>
                               <p className="text-sm font-medium text-foreground">Problem:</p>
                               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.problem_description}</p>
                             </div>
                           )}
-                          {ps.occurrence_location && (
-                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
-                              Location: {ps.occurrence_location}
-                            </Badge>
-                          )}
-                          {ps.possible_solutions && (
+                          {ps.solution && ( // Display the new merged solution
                             <div>
-                              <p className="text-sm font-medium text-foreground">Possible Solutions:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.possible_solutions}</p>
-                            </div>
-                          )}
-                          {ps.chosen_solution && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Chosen Solution:</p>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.chosen_solution}</p>
+                              <p className="text-sm font-medium text-foreground">Solution:</p>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ps.solution}</p>
                             </div>
                           )}
                           {ps.outcome && (
@@ -631,7 +627,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
       <DecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
       <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
-      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags, createdAt })} />
+      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, outcome, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, outcome, tags, createdAt })} />
     </div>
   );
 }

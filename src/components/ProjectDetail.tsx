@@ -291,7 +291,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <div className="flex gap-2">
             <AddNoteDialog onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
             <AddScreenshotDialog onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
-            <DecisionWizardDialog onAddDecision={(title, summary, context, alternatives, rationale, status, tags) => addDecisionMutation.mutate({ title, summary, context, alternatives, rationale, status, tags })} />
+            <DecisionWizardDialog onAddDecision={(title, summary, context, alternatives) => addDecisionMutation.mutate({ title, summary, context, alternatives })} />
             <AddJournalEntryDialog onAddJournalEntry={(content, mood, tags) => addJournalEntryMutation.mutate({ content, mood, tags })} />
             <AddProblemSolutionDialog onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags })} />
           </div>
@@ -435,11 +435,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.rationale}</p>
                             </div>
                           )}
-                          {decision.status && (
-                            <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-green-50/50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800">
-                              Status: {decision.status}
-                            </Badge>
-                          )}
+                          {/* Removed decision.status display */}
                           {decision.tags && decision.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-auto pt-2">
                               {decision.tags.map((tag, tagIndex) => (

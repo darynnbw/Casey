@@ -26,7 +26,6 @@ export interface Decision {
   context?: string;
   alternatives?: string;
   rationale?: string;
-  status?: string;
   tags?: string[];
   created_at: string;
 }

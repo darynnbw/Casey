@@ -13,17 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DecisionWizardDialogProps {
   onAddDecision: (
     title: string,
     summary: string,
-    context: string, // This will be the rationale
+    context: string, // This will be the rationale from the wizard
     alternatives: string,
-    rationale: string, // This will be unused, but kept for type compatibility
-    status: string, // This will be hardcoded to 'Final' for simplicity in wizard
-    tags: string[] // This will be unused for simplicity in wizard
   ) => void;
 }
 
@@ -35,6 +33,10 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
   const [rationale, setRationale] = useState(""); // "Why this decision?"
   const [alternatives, setAlternatives] = useState(""); // "Alternatives Explored"
 
+  const [showSummary, setShowSummary] = useState(false);
+  const [showRationale, setShowRationale] = useState(false);
+  const [showAlternatives, setShowAlternatives] = useState(false);
+
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
 
@@ -44,6 +46,9 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
     setRationale("");
     setAlternatives("");
     setStep(1);
+    setShowSummary(false);
+    setShowRationale(false);
+    setShowAlternatives(false);
   };
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -55,7 +60,6 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
 
   const handleNext = () => {
     if (step === 1 && !title.trim()) {
-      // Basic validation for title
       alert("Title is required.");
       return;
     }
@@ -69,8 +73,9 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      // For simplicity in the wizard, status is 'Final' and tags are empty
-      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim(), "", "Final", []);
+      // The wizard's 'rationale' is mapped to 'context' in the Decision type.
+      // The Decision type's 'rationale' field is left unused by this wizard.
+      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim());
       handleOpenChange(false); // Close dialog and reset form
     }
   };
@@ -83,27 +88,27 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
           Add Decision
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] rounded-xl shadow-lg">
+      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className="mb-6"> {/* Added margin-bottom */}
             <Progress value={progress} className="w-full h-2 mb-4" />
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-xl font-semibold"> {/* Smaller font, lighter weight */}
               {step === 1 && "Log New Decision: Details"}
               {step === 2 && "Log New Decision: Context"}
               {step === 3 && "Review & Submit Decision"}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            <DialogDescription className="text-muted-foreground font-normal"> {/* Lighter font weight */}
               {step === 1 && "Provide the main details for your decision."}
               {step === 2 && "Explain the reasoning and alternatives considered."}
               {step === 3 && "Review your decision before saving."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-6">
+          <div className="grid gap-6 py-4"> {/* Increased gap and vertical padding */}
             {step === 1 && (
               <>
                 <div>
-                  <Label htmlFor="decision-title" className="text-base">Title</Label>
+                  <Label htmlFor="decision-title" className="text-base mb-2 block">Title</Label>
                   <Input
                     id="decision-title"
                     value={title}
@@ -111,47 +116,83 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
                     placeholder="e.g., Chose sticky header for navigation"
                     autoFocus
                     required
-                    className="rounded-lg"
+                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
                   />
                 </div>
-                <div>
-                  <Label htmlFor="decision-summary" className="text-base">Summary (optional)</Label>
-                  <Textarea
-                    id="decision-summary"
-                    value={summary}
-                    onChange={(e) => setSummary(e.target.value)}
-                    placeholder="A brief overview of the decision."
-                    rows={2}
-                    className="rounded-lg"
-                  />
-                </div>
+                {!showSummary && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowSummary(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add summary
+                  </Button>
+                )}
+                {showSummary && (
+                  <div>
+                    <Label htmlFor="decision-summary" className="text-base mb-2 block">Summary (optional)</Label>
+                    <Textarea
+                      id="decision-summary"
+                      value={summary}
+                      onChange={(e) => setSummary(e.target.value)}
+                      placeholder="A brief overview of the decision."
+                      rows={2}
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                    />
+                  </div>
+                )}
               </>
             )}
 
             {step === 2 && (
               <>
-                <div>
-                  <Label htmlFor="decision-rationale" className="text-base">Why this decision? (optional)</Label>
-                  <Textarea
-                    id="decision-rationale"
-                    value={rationale}
-                    onChange={(e) => setRationale(e.target.value)}
-                    placeholder="Explain the reasoning behind the chosen decision."
-                    rows={4}
-                    className="rounded-lg"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="decision-alternatives" className="text-base">Alternatives Explored (optional)</Label>
-                  <Textarea
-                    id="decision-alternatives"
-                    value={alternatives}
-                    onChange={(e) => setAlternatives(e.target.value)}
-                    placeholder="What other options were explored?"
-                    rows={3}
-                    className="rounded-lg"
-                  />
-                </div>
+                {!showRationale && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowRationale(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add rationale
+                  </Button>
+                )}
+                {showRationale && (
+                  <div>
+                    <Label htmlFor="decision-rationale" className="text-base mb-2 block">Why this decision? (optional)</Label>
+                    <Textarea
+                      id="decision-rationale"
+                      value={rationale}
+                      onChange={(e) => setRationale(e.target.value)}
+                      placeholder="Explain the reasoning behind the chosen decision."
+                      rows={4}
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                    />
+                  </div>
+                )}
+                {!showAlternatives && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowAlternatives(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add alternatives explored
+                  </Button>
+                )}
+                {showAlternatives && (
+                  <div>
+                    <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Explored (optional)</Label>
+                    <Textarea
+                      id="decision-alternatives"
+                      value={alternatives}
+                      onChange={(e) => setAlternatives(e.target.value)}
+                      placeholder="What other options were explored?"
+                      rows={3}
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" // Subtler border, reduced radius
+                    />
+                  </div>
+                )}
               </>
             )}
 
@@ -161,23 +202,29 @@ export function DecisionWizardDialog({ onAddDecision }: DecisionWizardDialogProp
                   <p className="text-sm font-medium text-foreground">Title:</p>
                   <p className="text-base text-muted-foreground">{title || "N/A"}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Summary:</p>
-                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{summary || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Why this decision?:</p>
-                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{rationale || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Alternatives Explored:</p>
-                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
-                </div>
+                {summary && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Summary:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{summary || "N/A"}</p>
+                  </div>
+                )}
+                {rationale && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Why this decision?:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{rationale || "N/A"}</p>
+                  </div>
+                )}
+                {alternatives && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Alternatives Explored:</p>
+                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          <DialogFooter className="flex justify-between items-center">
+          <DialogFooter className="flex justify-between items-center pt-6"> {/* Increased padding-top */}
             {step > 1 && (
               <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
                 Back

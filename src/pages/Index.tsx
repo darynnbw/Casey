@@ -13,14 +13,13 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"; // Fixed import syntax
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  // Removed 'layout' state as it's no longer used for controlled sizing
   const { session } = useAuth();
   const queryClient = useQueryClient();
 
@@ -100,7 +99,6 @@ const Index = () => {
     deleteProjectMutation.mutate(projectId);
   };
 
-  // Simplified toggle function
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
@@ -116,14 +114,13 @@ const Index = () => {
         <ResizablePanelGroup 
           direction="horizontal" 
           className="h-full w-full" 
-          // Removed 'layout' prop
         >
           <ResizablePanel 
-            defaultSize={25} // Initial size for expanded view
-            collapsedSize={5} // Defines the size when collapsed
-            collapsible={true} // Allows collapsing by dragging the handle
-            minSize={isSidebarCollapsed ? 5 : 25} // Force min to 5 when collapsed, 25 when expanded
-            maxSize={isSidebarCollapsed ? 5 : 25} // Force max to 5 when collapsed, 25 when expanded
+            defaultSize={25} 
+            collapsedSize={5} 
+            collapsible={true} 
+            minSize={isSidebarCollapsed ? 5 : 25} 
+            maxSize={isSidebarCollapsed ? 5 : 25} 
             onCollapse={() => setIsSidebarCollapsed(true)}
             onExpand={() => setIsSidebarCollapsed(false)}
             className={cn(
@@ -131,7 +128,7 @@ const Index = () => {
               isSidebarCollapsed ? "items-center px-2" : "px-6"
             )}
           >
-            <div className={cn("flex items-center justify-between mb-6", isSidebarCollapsed ? "w-full pt-6" : "w-full pt-6")}>
+            <div className={cn("flex items-center mb-6", isSidebarCollapsed ? "w-full pt-6 justify-center" : "w-full pt-6 justify-between")}>
               {!isSidebarCollapsed && (
                 <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">Case Studies</h2>
               )}
@@ -170,7 +167,7 @@ const Index = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={toggleSidebar} // Use the new toggle function
+                    onClick={toggleSidebar} 
                     className="rounded-lg"
                   >
                     {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -183,7 +180,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
-          <ResizableHandle withHandle /> {/* Keep the handle for user dragging */}
+          <ResizableHandle withHandle />
           <ResizablePanel defaultSize={75}> 
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />

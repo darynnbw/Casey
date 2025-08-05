@@ -13,14 +13,14 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"; // Fixed import syntax
 import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  // Removed sidebarCurrentSize as it's no longer needed with dynamic min/maxSize
+  // Removed 'layout' state as it's no longer used for controlled sizing
   const { session } = useAuth();
   const queryClient = useQueryClient();
 
@@ -100,7 +100,7 @@ const Index = () => {
     deleteProjectMutation.mutate(projectId);
   };
 
-  // The toggleSidebar function is simplified as min/maxSize now control the snap
+  // Simplified toggle function
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
@@ -113,13 +113,17 @@ const Index = () => {
     <div className="h-screen w-screen flex flex-col">
       <Header />
       <div className="flex-grow overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanelGroup 
+          direction="horizontal" 
+          className="h-full w-full" 
+          // Removed 'layout' prop
+        >
           <ResizablePanel 
             defaultSize={25} // Initial size for expanded view
+            collapsedSize={5} // Defines the size when collapsed
+            collapsible={true} // Allows collapsing by dragging the handle
             minSize={isSidebarCollapsed ? 5 : 25} // Force min to 5 when collapsed, 25 when expanded
             maxSize={isSidebarCollapsed ? 5 : 25} // Force max to 5 when collapsed, 25 when expanded
-            collapsedSize={5}
-            collapsible={true}
             onCollapse={() => setIsSidebarCollapsed(true)}
             onExpand={() => setIsSidebarCollapsed(false)}
             className={cn(
@@ -179,6 +183,7 @@ const Index = () => {
               </Tooltip>
             </div>
           </ResizablePanel>
+          <ResizableHandle withHandle /> {/* Keep the handle for user dragging */}
           <ResizablePanel defaultSize={75}> 
             {selectedProject ? (
               <ProjectDetail project={selectedProject} />

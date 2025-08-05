@@ -10,9 +10,16 @@ import { useAuth } from "@/providers/AuthProvider";
 import { showSuccess, showError } from "@/utils/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProjectDetail } from "@/components/ProjectDetail";
+import { Button } from "@/components/ui/button";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { session } = useAuth();
   const queryClient = useQueryClient();
 
@@ -101,18 +108,69 @@ const Index = () => {
       <Header />
       <div className="flex-grow overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-            <div className="flex h-full flex-col p-6 bg-sidebar-background border-r border-sidebar-border">
-              <h2 className="text-xl font-semibold tracking-tight mb-6 text-sidebar-foreground">Case Studies</h2>
-              <NewProjectDialog onCreateProject={handleCreateProject} />
-              <div className="mt-6 flex-grow overflow-y-auto">
-                <ProjectList 
-                  projects={projects || []} 
-                  onSelectProject={setSelectedProject} 
-                  selectedProject={selectedProject}
-                  onDeleteProject={handleDeleteProject}
-                />
-              </div>
+          <ResizablePanel 
+            defaultSize={20} 
+            minSize={isSidebarCollapsed ? 5 : 15} 
+            maxSize={isSidebarCollapsed ? 5 : 30}
+            collapsedSize={5}
+            collapsible={true}
+            onCollapse={() => setIsSidebarCollapsed(true)}
+            onExpand={() => setIsSidebarCollapsed(false)}
+            className={cn(
+              "flex h-full flex-col bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out",
+              isSidebarCollapsed ? "items-center px-2" : "px-6"
+            )}
+          >
+            <div className={cn("flex items-center justify-between mb-6", isSidebarCollapsed ? "w-full pt-6" : "w-full pt-6")}>
+              {!isSidebarCollapsed && (
+                <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">Case Studies</h2>
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsNewProjectDialogOpen(true)}
+                    className={cn("rounded-lg", isSidebarCollapsed ? "w-10 h-10" : "w-auto h-auto")}
+                  >
+                    <Plus className={cn("h-4 w-4", !isSidebarCollapsed && "mr-2")} />
+                    {!isSidebarCollapsed && "New Project"}
+                    {isSidebarCollapsed && <span className="sr-only">New Project</span>}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="rounded-lg">Create a new case study project</TooltipContent>
+              </Tooltip>
+            </div>
+            
+            <Separator className={cn("mb-6", isSidebarCollapsed && "w-full")} />
+
+            <div className="flex-grow overflow-y-auto">
+              <ProjectList 
+                projects={projects || []} 
+                onSelectProject={setSelectedProject} 
+                selectedProject={selectedProject}
+                onDeleteProject={handleDeleteProject}
+                isCollapsed={isSidebarCollapsed}
+              />
+            </div>
+
+            <div className={cn("mt-auto pt-4", isSidebarCollapsed ? "w-full flex justify-center" : "w-full flex justify-end")}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className="rounded-lg"
+                  >
+                    {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+                    <span className="sr-only">{isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="rounded-lg">
+                  {isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                </TooltipContent>
+              </Tooltip>
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
@@ -130,6 +188,7 @@ const Index = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <NewProjectDialog open={isNewProjectDialogOpen} onOpenChange={setIsNewProjectDialogOpen} onCreateProject={handleCreateProject} />
     </div>
   );
 };

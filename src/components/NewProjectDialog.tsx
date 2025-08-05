@@ -7,18 +7,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle } from "lucide-react";
+// import { PlusCircle } from "lucide-react"; // Icon not needed here anymore
 
 interface NewProjectDialogProps {
   onCreateProject: (name: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function NewProjectDialog({ onCreateProject }: NewProjectDialogProps) {
-  const [open, setOpen] = useState(false);
+export function NewProjectDialog({ onCreateProject, open, onOpenChange }: NewProjectDialogProps) {
   const [projectName, setProjectName] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,18 +26,12 @@ export function NewProjectDialog({ onCreateProject }: NewProjectDialogProps) {
     if (projectName.trim()) {
       onCreateProject(projectName.trim());
       setProjectName("");
-      setOpen(false);
+      onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default" className="w-full rounded-lg py-2.5 text-base font-semibold shadow-sm hover:shadow-md transition-shadow">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] rounded-xl shadow-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

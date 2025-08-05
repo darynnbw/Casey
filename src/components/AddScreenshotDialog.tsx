@@ -12,11 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Plus } from "lucide-react";
+import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface AddScreenshotDialogProps {
-  onAddScreenshot: (file: File, caption: string, tags: string[], location: string) => void;
+  onAddScreenshot: (file: File, caption: string, tags: string[], location: string, createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -28,13 +31,14 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
   const [location, setLocation] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showCaption, setShowCaption] = useState(false);
   const [showTags, setShowTags] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
 
-  const totalSteps = 3; // File/Caption -> Tags/Location -> Review
+  const totalSteps = 3; // File/Caption -> Details (Tags/Location/Date) -> Review
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
@@ -43,6 +47,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
     setLocation("");
     setFile(null);
     setPreview(null);
+    setSelectedDate(new Date());
     if(fileInputRef.current) fileInputRef.current.value = "";
     setStep(1);
     setShowCaption(false);
@@ -86,9 +91,9 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (file) {
+    if (file && selectedDate) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddScreenshot(file, caption.trim(), tagArray, location.trim());
+      onAddScreenshot(file, caption.trim(), tagArray, location.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -106,7 +111,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Upload your image and add an optional caption."}
-              {step === 2 && "Add optional tags and location for better organization."}
+              {step === 2 && "Add optional tags, location, and set the date for better organization."}
               {step === 3 && "Review your screenshot details before saving."}
             </DialogDescription>
           </DialogHeader>
@@ -192,6 +197,31 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
                     />
                   </div>
                 )}
+                <div>
+                  <Label htmlFor="screenshot-date" className="text-base mb-2 block">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-xl">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </>
             )}
 
@@ -221,6 +251,10 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
                     <p className="text-base text-muted-foreground">{location || "N/A"}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Date:</p>
+                  <p className="text-base text-muted-foreground">{selectedDate ? format(selectedDate, "PPP") : "N/A"}</p>
+                </div>
               </div>
             )}
           </div>

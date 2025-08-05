@@ -12,8 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Plus } from "lucide-react";
+import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface AddProblemSolutionDialogProps {
   onAddProblemSolution: (
@@ -23,7 +26,8 @@ interface AddProblemSolutionDialogProps {
     possible_solutions: string,
     chosen_solution: string,
     outcome: string,
-    tags: string[]
+    tags: string[],
+    createdAt: string
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,6 +42,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
   const [chosen_solution, setChosenSolution] = useState("");
   const [outcome, setOutcome] = useState("");
   const [tags, setTags] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
   const [showOccurrenceLocation, setShowOccurrenceLocation] = useState(false);
@@ -57,6 +62,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     setChosenSolution("");
     setOutcome("");
     setTags("");
+    setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
     setShowOccurrenceLocation(false);
@@ -87,7 +93,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
+    if (title.trim() && selectedDate) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onAddProblemSolution(
         title.trim(),
@@ -96,7 +102,8 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
         possible_solutions.trim(),
         chosen_solution.trim(),
         outcome.trim(),
-        tagArray
+        tagArray,
+        selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
     }
@@ -112,14 +119,14 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
               {step === 1 && "Log Problem & Solution: Problem Details"}
               {step === 2 && "Log Problem & Solution: Context & Options"}
               {step === 3 && "Log Problem & Solution: Resolution"}
-              {step === 4 && "Log Problem & Solution: Tags"}
+              {step === 4 && "Log Problem & Solution: Tags & Date"}
               {step === 5 && "Review & Submit Problem/Solution"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Document a UX problem and its description."}
               {step === 2 && "Provide context and list possible solutions."}
               {step === 3 && "Detail the chosen solution and its outcome."}
-              {step === 4 && "Add optional tags for categorization."}
+              {step === 4 && "Add optional tags for categorization and set the date."}
               {step === 5 && "Review your problem and solution before saving."}
             </DialogDescription>
           </DialogHeader>
@@ -291,6 +298,31 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                     <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
+                <div>
+                  <Label htmlFor="problem-date" className="text-base mb-2 block">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-xl">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </>
             )}
 
@@ -336,6 +368,10 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                     <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Date:</p>
+                  <p className="text-base text-muted-foreground">{selectedDate ? format(selectedDate, "PPP") : "N/A"}</p>
+                </div>
               </div>
             )}
           </div>

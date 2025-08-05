@@ -165,11 +165,11 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Notes & Screenshots
   const addNoteMutation = useMutation({
-    mutationFn: async ({ content, tags, location }: { content: string, tags: string[], location: string }) => {
+    mutationFn: async ({ content, tags, location, createdAt }: { content: string, tags: string[], location: string, createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
       const { data, error } = await supabase
         .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location }])
+        .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location, created_at: createdAt }])
         .select();
       if (error) throw error;
       return data[0];
@@ -183,7 +183,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const addScreenshotMutation = useMutation({
-    mutationFn: async ({ file, caption, tags, location }: { file: File, caption: string, tags: string[], location: string }) => {
+    mutationFn: async ({ file, caption, tags, location, createdAt }: { file: File, caption: string, tags: string[], location: string, createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
       
       const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
@@ -194,7 +194,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
       const { data, error: insertError } = await supabase
         .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location }])
+        .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location, created_at: createdAt }])
         .select();
       if (insertError) throw insertError;
       return data[0];
@@ -225,11 +225,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Decisions
   const addDecisionMutation = useMutation({
-    mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at'>) => {
+    mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
+      const { createdAt, ...rest } = decisionData;
       const { data, error } = await supabase
         .from("decisions")
-        .insert([{ ...decisionData, project_id: project.id, user_id: session.user.id }])
+        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
         .select();
       if (error) throw error;
       return data[0];
@@ -256,11 +257,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Journal Entries
   const addJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryData: Omit<JournalEntry, 'id' | 'user_id' | 'project_id' | 'created_at'>) => {
+    mutationFn: async (journalEntryData: Omit<JournalEntry, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
+      const { createdAt, ...rest } = journalEntryData;
       const { data, error } = await supabase
         .from("journal_entries")
-        .insert([{ ...journalEntryData, project_id: project.id, user_id: session.user.id }])
+        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
         .select();
       if (error) throw error;
       return data[0];
@@ -287,11 +289,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Problem Solutions
   const addProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'>) => {
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
+      const { createdAt, ...rest } = problemSolutionData;
       const { data, error } = await supabase
         .from("problem_solutions")
-        .insert([{ ...problemSolutionData, project_id: project.id, user_id: session.user.id }])
+        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
         .select();
       if (error) throw error;
       return data[0];
@@ -321,17 +324,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   }
 
   // Filter entries based on selectedTag
+  const allEntries = (entries || []).concat(
+    (decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, tags: d.tags || [] })),
+    (journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, tags: j.tags || [] })),
+    (problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, tags: p.tags || [] }))
+  );
+
   const filteredEntries = selectedTag
-    ? entries?.filter(entry => entry.tags?.includes(selectedTag))
-    : entries;
+    ? allEntries.filter(entry => entry.tags?.includes(selectedTag))
+    : allEntries;
 
   const groupedEntries = groupEntriesByDate(filteredEntries || []);
   const groupedDecisions = groupEntriesByDate(decisions || []);
   const groupedJournalEntries = groupEntriesByDate(journalEntries || []);
   const groupedProblemSolutions = groupEntriesByDate(problemSolutions || []);
 
-  // Extract unique tags for pills (only for notes/screenshots for now)
-  const allUniqueTags = Array.from(new Set(entries?.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
+  // Extract unique tags for pills (from all types of entries)
+  const allUniqueTags = Array.from(new Set(allEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -618,11 +627,11 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </Tabs>
       </div>
       {/* Dialogs are now controlled by state */}
-      <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location) => addNoteMutation.mutate({ content, tags, location })} />
-      <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location) => addScreenshotMutation.mutate({ file, caption, tags, location })} />
-      <DecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives) => addDecisionMutation.mutate({ title, summary, context, alternatives })} />
-      <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags) => addJournalEntryMutation.mutate({ content, mood, tags })} />
-      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags })} />
+      <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />
+      <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
+      <DecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
+      <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
+      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, possible_solutions, chosen_solution, outcome, tags, createdAt })} />
     </div>
   );
 }

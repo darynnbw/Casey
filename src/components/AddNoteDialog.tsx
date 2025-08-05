@@ -12,11 +12,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Plus } from "lucide-react";
+import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface AddNoteDialogProps {
-  onAddNote: (content: string, tags: string[], location: string) => void;
+  onAddNote: (content: string, tags: string[], location: string, createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -26,17 +29,19 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showTags, setShowTags] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
 
-  const totalSteps = 3; // Content -> Tags/Location -> Review
+  const totalSteps = 3; // Content -> Details (Tags/Location/Date) -> Review
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
     setContent("");
     setTags("");
     setLocation("");
+    setSelectedDate(new Date());
     setStep(1);
     setShowTags(false);
     setShowLocation(false);
@@ -63,9 +68,9 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim()) {
+    if (content.trim() && selectedDate) {
       const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddNote(content.trim(), tagArray, location.trim());
+      onAddNote(content.trim(), tagArray, location.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -83,7 +88,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Write down your thoughts, ideas, or project updates."}
-              {step === 2 && "Add optional tags and location for better organization."}
+              {step === 2 && "Add optional tags, location, and set the date for better organization."}
               {step === 3 && "Review your note before saving."}
             </DialogDescription>
           </DialogHeader>
@@ -152,6 +157,31 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
                     />
                   </div>
                 )}
+                <div>
+                  <Label htmlFor="note-date" className="text-base mb-2 block">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-xl">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </>
             )}
 
@@ -173,6 +203,10 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
                     <p className="text-base text-muted-foreground">{location || "N/A"}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Date:</p>
+                  <p className="text-base text-muted-foreground">{selectedDate ? format(selectedDate, "PPP") : "N/A"}</p>
+                </div>
               </div>
             )}
           </div>

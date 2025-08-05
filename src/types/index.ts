@@ -9,7 +9,7 @@ export interface Entry {
   id: string;
   project_id: string;
   user_id: string;
-  type: 'note' | 'screenshot';
+  type: 'note' | 'screenshot' | 'decision' | 'journal' | 'problem_solution'; // Added new types
   content?: string;
   file_url?: string;
   created_at: string;

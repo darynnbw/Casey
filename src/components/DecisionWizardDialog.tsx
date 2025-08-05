@@ -7,15 +7,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  // DialogTrigger, // Removed
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-// import { CheckCircle2, Plus } from "lucide-react"; // Icons not needed here anymore
-import { Plus } from "lucide-react"; // Only Plus is needed for the "Add summary" etc. links
+import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface DecisionWizardDialogProps {
   onAddDecision: (
@@ -23,6 +24,7 @@ interface DecisionWizardDialogProps {
     summary: string,
     context: string, // This will be the rationale from the wizard
     alternatives: string,
+    createdAt: string,
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -34,6 +36,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
   const [summary, setSummary] = useState("");
   const [rationale, setRationale] = useState(""); // "Why this decision?"
   const [alternatives, setAlternatives] = useState(""); // "Alternatives Explored"
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showSummary, setShowSummary] = useState(false);
   const [showRationale, setShowRationale] = useState(false);
@@ -47,6 +50,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
     setSummary("");
     setRationale("");
     setAlternatives("");
+    setSelectedDate(new Date());
     setStep(1);
     setShowSummary(false);
     setShowRationale(false);
@@ -74,10 +78,10 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
+    if (title.trim() && selectedDate) {
       // The wizard's 'rationale' is mapped to 'context' in the Decision type.
       // The Decision type's 'rationale' field is left unused by this wizard.
-      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim());
+      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false); // Close dialog and reset form
     }
   };
@@ -96,7 +100,7 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal"> {/* Lighter font weight */}
               {step === 1 && "Provide the main details for your decision."}
-              {step === 2 && "Explain the reasoning and alternatives considered."}
+              {step === 2 && "Explain the reasoning and alternatives considered, and set the date."}
               {step === 3 && "Review your decision before saving."}
             </DialogDescription>
           </DialogHeader>
@@ -190,6 +194,31 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                     />
                   </div>
                 )}
+                <div>
+                  <Label htmlFor="decision-date" className="text-base mb-2 block">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-xl">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </>
             )}
 
@@ -217,6 +246,10 @@ export function DecisionWizardDialog({ onAddDecision, open, onOpenChange }: Deci
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Date:</p>
+                  <p className="text-base text-muted-foreground">{selectedDate ? format(selectedDate, "PPP") : "N/A"}</p>
+                </div>
               </div>
             )}
           </div>

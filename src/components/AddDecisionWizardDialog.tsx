@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface AddDecisionWizardDialogProps {
   onAddDecision: (
@@ -133,7 +133,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                 {showSummary && (
                   <div>
                     <Label htmlFor="decision-summary" className="text-base mb-2 block">Summary (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-summary"
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
@@ -161,7 +161,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                 {showRationale && (
                   <div>
                     <Label htmlFor="decision-rationale" className="text-base mb-2 block">Why this decision? (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-rationale"
                       value={rationale}
                       onChange={(e) => setRationale(e.target.value)}
@@ -184,7 +184,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                 {showAlternatives && (
                   <div>
                     <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Explored (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-alternatives"
                       value={alternatives}
                       onChange={(e) => setAlternatives(e.target.value)}

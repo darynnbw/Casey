@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { JournalEntry } from "@/types";
+import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface EditJournalEntryDialogProps {
   initialData: JournalEntry | null;
@@ -118,7 +118,7 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
             {step === 1 && (
               <div>
                 <Label htmlFor="journal-content" className="text-base mb-2 block">Entry</Label>
-                <Textarea
+                <MarkdownEditor
                   id="journal-content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}

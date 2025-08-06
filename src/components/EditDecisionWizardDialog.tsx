@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Decision } from "@/types";
+import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface EditDecisionWizardDialogProps {
   initialData: Decision | null;
@@ -173,7 +173,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showSummary && (
                   <div>
                     <Label htmlFor="decision-summary" className="text-base mb-2 block">Summary (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-summary"
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
@@ -201,7 +201,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showContext && (
                   <div>
                     <Label htmlFor="decision-context" className="text-base mb-2 block">Problem/Context (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-context"
                       value={context}
                       onChange={(e) => setContext(e.target.value)}
@@ -224,7 +224,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showAlternatives && (
                   <div>
                     <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Considered (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-alternatives"
                       value={alternatives}
                       onChange={(e) => setAlternatives(e.target.value)}
@@ -252,7 +252,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showRationale && (
                   <div>
                     <Label htmlFor="decision-rationale" className="text-base mb-2 block">Why this decision? (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="decision-rationale"
                       value={rationale}
                       onChange={(e) => setRationale(e.target.value)}

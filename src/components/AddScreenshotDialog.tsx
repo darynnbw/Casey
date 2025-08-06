@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface AddScreenshotDialogProps {
   onAddScreenshot: (file: File, caption: string, tags: string[], location: string, createdAt: string) => void;
@@ -137,7 +137,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
                 {showCaption && (
                   <div>
                     <Label htmlFor="caption" className="text-base mb-2 block">Caption (optional)</Label>
-                    <Textarea
+                    <MarkdownEditor
                       id="caption"
                       value={caption}
                       onChange={(e) => setCaption(e.target.value)}
@@ -267,11 +267,11 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
             )}
             <div className="flex-grow" />
             {step < totalSteps ? (
-              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={step === 1 && !file}>
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={step === 1 && !preview}>
                 Next
               </Button>
             ) : (
-              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={!file}>
+              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={!preview}>
                 Save Screenshot
               </Button>
             )}

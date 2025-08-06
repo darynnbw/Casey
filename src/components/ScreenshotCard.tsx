@@ -19,7 +19,7 @@ const isUrl = (text: string) => {
 export function ScreenshotCard({ screenshot, onDelete, onEdit, index }: ScreenshotCardProps) {
   return (
     <div key={screenshot.id} className={cn(
-      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
+      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -51,7 +51,7 @@ export function ScreenshotCard({ screenshot, onDelete, onEdit, index }: Screensh
       )}
 
       <div className="space-y-3">
-        <img src={screenshot.file_url} alt={screenshot.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-white shadow-sm" />
+        <img src={screenshot.file_url} alt={screenshot.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-white shadow-sm" loading="lazy" />
         {screenshot.content && <p className="text-sm italic text-muted-foreground">{screenshot.content}</p>}
       </div>
 

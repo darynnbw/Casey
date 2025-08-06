@@ -22,6 +22,17 @@ import { ScreenshotCard } from "./ScreenshotCard";
 import { DecisionCard } from "./DecisionCard";
 import { JournalEntryCard } from "./JournalEntryCard";
 import { ProblemSolutionCard } from "./ProblemSolutionCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Import new edit dialogs
 import { EditNoteDialog } from "./EditNoteDialog";
@@ -238,7 +249,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       const { error: uploadError } = await supabase.storage.from("project_files").upload(filePath, file);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage.from("project_files").getPublicUrl(filePath);
+      const { data: { publicUrl } = { publicUrl: '' } } = supabase.storage.from("project_files").getPublicUrl(filePath);
 
       const { data, error: insertError } = await supabase
         .from("entries")
@@ -270,7 +281,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
         const { error: uploadError } = await supabase.storage.from("project_files").upload(filePath, file);
         if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from("project_files").getPublicUrl(filePath);
+        const { data: { publicUrl } = { publicUrl: '' } } = supabase.storage.from("project_files").getPublicUrl(filePath);
         fileUrl = publicUrl;
       }
 
@@ -415,7 +426,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Problem Solutions
   const addProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at' | 'outcome'> & { createdAt: string }) => { // Removed outcome from Omit
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => { // Removed outcome from Omit
       if (!session) throw new Error("User not authenticated");
       const { createdAt, ...rest } = problemSolutionData;
       const { data, error } = await supabase
@@ -434,7 +445,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id' | 'outcome'>) => { // Removed & { createdAt: string } and outcome from Omit
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string } and outcome from Omit
       if (!session) throw new Error("User not authenticated");
       const { id, created_at, ...rest } = problemSolutionData; // Destructure created_at
       const { data, error } = await supabase
@@ -548,9 +559,45 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {entriesOnDate.map((entry, index) => {
                         if (entry.type === 'note') {
-                          return <NoteCard key={entry.id} note={entry} onDelete={deleteEntryMutation.mutate} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} index={index} />;
+                          return (
+                            <AlertDialog key={entry.id}>
+                              <NoteCard note={entry} onDelete={() => {}} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} index={index} />
+                              <AlertDialogContent className="rounded-xl">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this note.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry)} className="rounded-lg">
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          );
                         } else if (entry.type === 'screenshot') {
-                          return <ScreenshotCard key={entry.id} screenshot={entry} onDelete={deleteEntryMutation.mutate} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} index={index} />;
+                          return (
+                            <AlertDialog key={entry.id}>
+                              <ScreenshotCard screenshot={entry} onDelete={() => {}} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} index={index} />
+                              <AlertDialogContent className="rounded-xl">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this screenshot.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry)} className="rounded-lg">
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          );
                         }
                         return null;
                       })}
@@ -574,7 +621,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {decisionsOnDate.map((decision, index) => (
-                        <DecisionCard key={decision.id} decision={decision} onDelete={deleteDecisionMutation.mutate} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} index={index} />
+                        <AlertDialog key={decision.id}>
+                          <DecisionCard decision={decision} onDelete={() => {}} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} index={index} />
+                          <AlertDialogContent className="rounded-xl">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this decision.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteDecisionMutation.mutate(decision.id)} className="rounded-lg">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       ))}
                     </div>
                   </div>
@@ -596,7 +659,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {journalEntriesOnDate.map((journalEntry, index) => (
-                        <JournalEntryCard key={journalEntry.id} journalEntry={journalEntry} onDelete={(id) => deleteJournalEntryMutation.mutate(id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} index={index} />
+                        <AlertDialog key={journalEntry.id}>
+                          <JournalEntryCard journalEntry={journalEntry} onDelete={() => {}} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} index={index} />
+                          <AlertDialogContent className="rounded-xl">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this journal entry.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteJournalEntryMutation.mutate(journalEntry.id)} className="rounded-lg">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       ))}
                     </div>
                   </div>
@@ -618,7 +697,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {problemSolutionsOnDate.map((ps, index) => (
-                        <ProblemSolutionCard key={ps.id} problemSolution={ps} onDelete={(id) => deleteProblemSolutionMutation.mutate(id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} index={index} />
+                        <AlertDialog key={ps.id}>
+                          <ProblemSolutionCard problemSolution={ps} onDelete={() => {}} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} index={index} />
+                          <AlertDialogContent className="rounded-xl">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this problem/solution entry.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteProblemSolutionMutation.mutate(ps.id)} className="rounded-lg">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       ))}
                     </div>
                   </div>

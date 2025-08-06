@@ -24,7 +24,7 @@ interface AddProblemSolutionDialogProps {
     problem_description: string,
     occurrence_location: string,
     solution: string, // Merged field
-    tags: string[], // Removed outcome
+    tags: string[],
     createdAt: string
   ) => void;
   open: boolean;
@@ -45,7 +45,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
   const [showSolution, setShowSolution] = useState(false); // New state for solution
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review (Removed Outcome step)
+  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
@@ -90,7 +90,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
         problem_description.trim(),
         occurrence_location.trim(),
         solution.trim(), // Pass the new merged solution
-        tagArray, // Removed outcome
+        tagArray,
         selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
@@ -106,14 +106,12 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}
               {step === 2 && "Log Problem & Solution: Context & Solution"}
-              {step === 3 && "Log Problem & Solution: Tags & Date"}
-              {step === 4 && "Review & Submit Problem/Solution"}
+              {step === 3 && "Review & Submit Problem/Solution"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Document a UX problem and its description."}
               {step === 2 && "Provide context and detail the solution."}
-              {step === 3 && "Add optional tags for categorization and set the date."}
-              {step === 4 && "Review your problem and solution before saving."}
+              {step === 3 && "Review your problem and solution before saving."}
             </DialogDescription>
           </DialogHeader>
 

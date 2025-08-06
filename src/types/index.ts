@@ -48,7 +48,6 @@ export interface ProblemSolution {
   problem_description?: string;
   occurrence_location?: string;
   solution?: string; // Merged from possible_solutions and chosen_solution
-  outcome?: string;
   tags?: string[];
   created_at: string;
 }

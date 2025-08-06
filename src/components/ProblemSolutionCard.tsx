@@ -15,7 +15,7 @@ interface ProblemSolutionCardProps {
 export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, index }: ProblemSolutionCardProps) {
   return (
     <div key={problemSolution.id} className={cn(
-      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-4",
+      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -45,12 +45,6 @@ export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, index }
         <div>
           <p className="text-sm font-medium text-foreground">Solution:</p>
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{problemSolution.solution}</p>
-        </div>
-      )}
-      {problemSolution.outcome && (
-        <div>
-          <p className="text-sm font-medium text-foreground">Outcome:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{problemSolution.outcome}</p>
         </div>
       )}
       {problemSolution.tags && problemSolution.tags.length > 0 && (

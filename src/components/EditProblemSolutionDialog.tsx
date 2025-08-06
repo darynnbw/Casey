@@ -27,7 +27,7 @@ interface EditProblemSolutionDialogProps {
     problem_description: string,
     occurrence_location: string,
     solution: string,
-    tags: string[], // Removed outcome
+    tags: string[],
     created_at: string
   ) => void;
   open: boolean;
@@ -48,7 +48,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
   const [showSolution, setShowSolution] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review (Removed Outcome step)
+  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review
   const progress = (step / totalSteps) * 100;
 
   useEffect(() => {

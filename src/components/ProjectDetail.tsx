@@ -482,24 +482,33 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     return <div className="flex justify-center items-center h-full"><LoadingSpinner /></div>;
   }
 
-  // Filter entries based on selectedTag
-  const allEntries = (entries || []).concat(
-    (decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, tags: d.tags || [] })),
-    (journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, tags: j.tags || [] })),
-    (problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, tags: p.tags || [] }))
-  );
+  // Helper function to filter data by selected tag
+  const getFilteredData = <T extends { tags?: string[] }>(data: T[] | undefined, tag: string | null): T[] => {
+    if (!data) return [];
+    if (!tag) return data;
+    return data.filter(item => item.tags?.includes(tag));
+  };
 
-  const filteredEntries = selectedTag
-    ? allEntries.filter(entry => entry.tags?.includes(selectedTag))
-    : allEntries;
+  // Filter data based on selectedTag
+  const filteredNotesAndScreenshots = getFilteredData(entries, selectedTag);
+  const filteredDecisions = getFilteredData(decisions, selectedTag);
+  const filteredJournalEntries = getFilteredData(journalEntries, selectedTag);
+  const filteredProblemSolutions = getFilteredData(problemSolutions, selectedTag);
 
-  const groupedEntries = groupEntriesByDate(filteredEntries || []);
-  const groupedDecisions = groupEntriesByDate(decisions || []);
-  const groupedJournalEntries = groupEntriesByDate(journalEntries || []);
-  const groupedProblemSolutions = groupEntriesByDate(problemSolutions || []);
+  // Group filtered data by date
+  const groupedNotesAndScreenshots = groupEntriesByDate(filteredNotesAndScreenshots);
+  const groupedDecisions = groupEntriesByDate(filteredDecisions);
+  const groupedJournalEntries = groupEntriesByDate(filteredJournalEntries);
+  const groupedProblemSolutions = groupEntriesByDate(filteredProblemSolutions);
 
-  // Extract unique tags for pills (from all types of entries)
-  const allUniqueTags = Array.from(new Set(allEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
+  // Extract unique tags for pills (from all types of entries, unfiltered)
+  const allUniqueTags = Array.from(new Set(
+    (entries || []).flatMap(entry => entry.tags || [])
+    .concat((decisions || []).flatMap(d => d.tags || []))
+    .concat((journalEntries || []).flatMap(j => j.tags || []))
+    .concat((problemSolutions || []).flatMap(p => p.tags || []))
+    .filter(tag => tag !== '')
+  ));
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -516,6 +525,28 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
+        {allUniqueTags.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            <Badge
+              variant={selectedTag === null ? "default" : "outline"}
+              className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={() => setSelectedTag(null)}
+            >
+              All
+            </Badge>
+            {allUniqueTags.map((tag) => (
+              <Badge
+                key={tag}
+                variant={selectedTag === tag ? "default" : "outline"}
+                className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="notes-screenshots" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Notes & Screenshots</TabsTrigger>
@@ -525,29 +556,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </TabsList>
 
           <TabsContent value="notes-screenshots">
-            {allUniqueTags.length > 0 && (
-              <div className="mb-8 flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedTag === null ? "default" : "outline"}
-                  className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
-                  onClick={() => setSelectedTag(null)}
-                >
-                  All
-                </Badge>
-                {allUniqueTags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTag === tag ? "default" : "outline"}
-                    className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
-                    onClick={() => setSelectedTag(tag)}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            {Object.keys(groupedEntries).length === 0 ? (
+            {Object.keys(groupedNotesAndScreenshots).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
                 <p className="text-xl font-semibold text-foreground mb-2">No Notes or Screenshots Yet!</p>
                 <p className="text-lg text-muted-foreground">{getRandomMessage(notesScreenshotsMessages)}</p>
@@ -555,7 +564,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             ) : (
               <div className="space-y-10">
-                {Object.entries(groupedEntries).map(([date, entriesOnDate]) => (
+                {Object.entries(groupedNotesAndScreenshots).map(([date, entriesOnDate]) => (
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

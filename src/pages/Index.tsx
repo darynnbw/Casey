@@ -12,7 +12,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import GradientSeparator from "@/components/GradientSeparator"; // Changed import to GradientSeparator
+import GradientSeparator from "@/components/GradientSeparator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -119,8 +119,8 @@ const Index = () => {
             defaultSize={25} 
             collapsedSize={5} 
             collapsible={true} 
-            minSize={isSidebarCollapsed ? 5 : 25} 
-            maxSize={isSidebarCollapsed ? 5 : 25} 
+            minSize={isSidebarCollapsed ? 5 : 15} 
+            maxSize={isSidebarCollapsed ? 5 : 50} 
             onCollapse={() => setIsSidebarCollapsed(true)}
             onExpand={() => setIsSidebarCollapsed(false)}
             className={cn(

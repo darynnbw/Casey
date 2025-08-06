@@ -12,7 +12,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import GradientSeparator from "@/components/GradientSeparator"; // Changed import to GradientSeparator
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -132,13 +132,13 @@ const Index = () => {
               {!isSidebarCollapsed && (
                 <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">Case Studies</h2>
               )}
-              <Tooltip>
+              <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setIsNewProjectDialogOpen(true)}
-                    className={cn("rounded-lg", isSidebarCollapsed ? "w-10 h-10" : "w-auto h-auto")}
+                    className={cn("rounded-lg transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", isSidebarCollapsed ? "w-10 h-10" : "w-auto h-auto")}
                   >
                     <Plus className={cn("h-4 w-4", !isSidebarCollapsed && "mr-2")} />
                     {!isSidebarCollapsed && "New Project"}
@@ -149,7 +149,7 @@ const Index = () => {
               </Tooltip>
             </div>
             
-            <Separator className={cn("mb-6", isSidebarCollapsed && "w-full")} />
+            <GradientSeparator className={cn("mb-6", isSidebarCollapsed && "w-full")} />
 
             <div className="flex-grow overflow-y-auto">
               <ProjectList 
@@ -162,13 +162,13 @@ const Index = () => {
             </div>
 
             <div className={cn("mt-auto pt-4", isSidebarCollapsed ? "w-full flex justify-center" : "w-full flex justify-end")}>
-              <Tooltip>
+              <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={toggleSidebar} 
-                    className="rounded-lg"
+                    className="rounded-lg transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
                     <span className="sr-only">{isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}</span>

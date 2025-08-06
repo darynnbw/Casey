@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"; // Import Tooltip components
 
 // Import new edit dialogs
 import { EditNoteDialog } from "./EditNoteDialog";
@@ -517,10 +518,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       <div className="flex-grow overflow-y-auto p-8 bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="notes-screenshots">Notes & Screenshots</TabsTrigger>
-            <TabsTrigger value="decisions">Decisions</TabsTrigger>
-            <TabsTrigger value="journal-entries">Journal Entries</TabsTrigger>
-            <TabsTrigger value="problem-solutions">Problem Solutions</TabsTrigger>
+            <TabsTrigger value="notes-screenshots" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Notes & Screenshots</TabsTrigger>
+            <TabsTrigger value="decisions" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Decisions</TabsTrigger>
+            <TabsTrigger value="journal-entries" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Journal Entries</TabsTrigger>
+            <TabsTrigger value="problem-solutions" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Problem Solutions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="notes-screenshots">
@@ -528,7 +529,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               <div className="mb-8 flex flex-wrap gap-2">
                 <Badge
                   variant={selectedTag === null ? "default" : "outline"}
-                  className={cn("cursor-pointer rounded-full px-3 py-1 text-sm", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+                  className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
                   onClick={() => setSelectedTag(null)}
                 >
                   All
@@ -537,7 +538,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                   <Badge
                     key={tag}
                     variant={selectedTag === tag ? "default" : "outline"}
-                    className={cn("cursor-pointer rounded-full px-3 py-1 text-sm", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
+                    className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
                     onClick={() => setSelectedTag(tag)}
                   >
                     {tag}
@@ -547,9 +548,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             )}
 
             {Object.keys(groupedEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">{getRandomMessage(notesScreenshotsMessages)}</p>
-                <p className="text-md mt-2">Add one to get started.</p>
+              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
+                <p className="text-xl font-semibold text-foreground mb-2">No Notes or Screenshots Yet!</p>
+                <p className="text-lg text-muted-foreground">{getRandomMessage(notesScreenshotsMessages)}</p>
+                <p className="text-md mt-4">Click the "Add" button to get started.</p>
               </div>
             ) : (
               <div className="space-y-10">
@@ -610,9 +612,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
           <TabsContent value="decisions">
             {Object.keys(groupedDecisions).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">{getRandomMessage(decisionsMessages)}</p>
-                <p className="text-md mt-2">Add a decision to document your design choices.</p>
+              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
+                <p className="text-xl font-semibold text-foreground mb-2">No Decisions Logged Yet!</p>
+                <p className="text-lg text-muted-foreground">{getRandomMessage(decisionsMessages)}</p>
+                <p className="text-md mt-4">Click the "Add" button to document your design choices.</p>
               </div>
             ) : (
               <div className="space-y-10">
@@ -648,9 +651,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
           <TabsContent value="journal-entries">
             {Object.keys(groupedJournalEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">{getRandomMessage(journalEntriesMessages)}</p>
-                <p className="text-md mt-2">Add an entry to log your thoughts and progress.</p>
+              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
+                <p className="text-xl font-semibold text-foreground mb-2">No Journal Entries Yet!</p>
+                <p className="text-lg text-muted-foreground">{getRandomMessage(journalEntriesMessages)}</p>
+                <p className="text-md mt-4">Click the "Add" button to log your thoughts and progress.</p>
               </div>
             ) : (
               <div className="space-y-10">
@@ -686,9 +690,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
           <TabsContent value="problem-solutions">
             {Object.keys(groupedProblemSolutions).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12">
-                <p className="text-lg">{getRandomMessage(problemSolutionsMessages)}</p>
-                <p className="text-md mt-2">Add one to document UX challenges and their resolutions.</p>
+              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
+                <p className="text-xl font-semibold text-foreground mb-2">No Problem Solutions Logged Yet!</p>
+                <p className="text-lg text-muted-foreground">{getRandomMessage(problemSolutionsMessages)}</p>
+                <p className="text-md mt-4">Click the "Add" button to document UX challenges and their resolutions.</p>
               </div>
             ) : (
               <div className="space-y-10">

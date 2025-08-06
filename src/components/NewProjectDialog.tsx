@@ -49,7 +49,7 @@ export function NewProjectDialog({ onCreateProject, open, onOpenChange }: NewPro
                 id="name"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
-                className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="e.g., Client Website Redesign"
                 autoFocus
                 required
@@ -57,7 +57,7 @@ export function NewProjectDialog({ onCreateProject, open, onOpenChange }: NewPro
             </div>
           </div>
           <DialogFooter className="pt-6">
-            <Button type="submit" className="rounded-lg px-4 py-2.5">Create Project</Button>
+            <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Create Project</Button>
           </DialogFooter>
         </form>
       </DialogContent>

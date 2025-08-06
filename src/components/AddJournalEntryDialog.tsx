@@ -112,7 +112,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                   rows={7}
                   autoFocus
                   required
-                  className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                  className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
             )}
@@ -124,7 +124,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                     type="button"
                     variant="link"
                     onClick={() => setShowMood(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add mood
                   </Button>
@@ -133,7 +133,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                   <div>
                     <Label htmlFor="journal-mood" className="text-base mb-2 block">Mood (optional)</Label>
                     <Select value={mood} onValueChange={setMood}>
-                      <SelectTrigger className="w-full rounded-md px-3 py-2 border border-input/70 focus:border-primary">
+                      <SelectTrigger className="w-full rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                         <SelectValue placeholder="How are you feeling?" />
                       </SelectTrigger>
                       <SelectContent className="rounded-lg">
@@ -151,7 +151,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                     type="button"
                     variant="link"
                     onClick={() => setShowTags(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add tags
                   </Button>
@@ -164,7 +164,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
                       placeholder="e.g., Meeting, Client Feedback, Brainstorm"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                     <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
@@ -176,7 +176,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           !selectedDate && "text-muted-foreground"
                         )}
                       >
@@ -225,17 +225,17 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
 
           <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
+              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Back
               </Button>
             )}
             <div className="flex-grow" />
             {step < totalSteps ? (
-              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5">
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Next
               </Button>
             ) : (
-              <Button type="submit" className="rounded-lg px-4 py-2.5">
+              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Save Entry
               </Button>
             )}

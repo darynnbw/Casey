@@ -51,12 +51,12 @@ export function ProjectList({ projects, selectedProject, onSelectProject, onDele
       ) : (
         projects.map((project) => (
           <div key={project.id} className="flex items-center group rounded-lg transition-all duration-200 hover:bg-accent/50">
-            <Tooltip>
+            <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start flex-grow text-sidebar-foreground py-1.5 px-2 rounded-lg",
+                    "w-full justify-start flex-grow text-sidebar-foreground py-1.5 px-2 rounded-lg transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     selectedProject?.id === project.id && "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent",
                     isCollapsed && "justify-center px-0 w-10 h-10"
                   )}
@@ -71,11 +71,17 @@ export function ProjectList({ projects, selectedProject, onSelectProject, onDele
                   {isCollapsed && <span className="sr-only">{project.name}</span>}
                 </Button>
               </TooltipTrigger>
-              {isCollapsed && <TooltipContent side="right" className="rounded-lg">{project.name}</TooltipContent>}
+              {isCollapsed && <TooltipContent side="right" className="rounded-lg">
+                <p>{project.name}</p>
+              </TooltipContent>}
             </Tooltip>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("opacity-0 group-hover:opacity-100 transition-opacity rounded-lg", isCollapsed && "hidden")}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={cn("opacity-0 group-hover:opacity-100 transition-opacity rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2", isCollapsed && "hidden")}
+                >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </AlertDialogTrigger>

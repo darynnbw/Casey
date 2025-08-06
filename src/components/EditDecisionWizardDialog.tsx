@@ -157,7 +157,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     placeholder="e.g., Chose sticky header for navigation"
                     autoFocus
                     required
-                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
                 {!showSummary && (
@@ -165,7 +165,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     type="button"
                     variant="link"
                     onClick={() => setShowSummary(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add summary
                   </Button>
@@ -179,7 +179,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       onChange={(e) => setSummary(e.target.value)}
                       placeholder="A brief overview of the decision."
                       rows={2}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -193,7 +193,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     type="button"
                     variant="link"
                     onClick={() => setShowContext(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add context
                   </Button>
@@ -207,7 +207,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       onChange={(e) => setContext(e.target.value)}
                       placeholder="What problem or situation led to this decision?"
                       rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -216,7 +216,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     type="button"
                     variant="link"
                     onClick={() => setShowAlternatives(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add alternatives considered
                   </Button>
@@ -230,7 +230,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       onChange={(e) => setAlternatives(e.target.value)}
                       placeholder="What other options were explored?"
                       rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -244,7 +244,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     type="button"
                     variant="link"
                     onClick={() => setShowRationale(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add rationale
                   </Button>
@@ -258,7 +258,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       onChange={(e) => setRationale(e.target.value)}
                       placeholder="Explain the reasoning behind the chosen decision."
                       rows={4}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -267,7 +267,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     type="button"
                     variant="link"
                     onClick={() => setShowTags(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add tags
                   </Button>
@@ -280,7 +280,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
                       placeholder="e.g., Navigation, Mobile, Accessibility"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                     <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
@@ -292,7 +292,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           !selectedDate && "text-muted-foreground"
                         )}
                       >
@@ -359,17 +359,17 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
 
           <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
+              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Back
               </Button>
             )}
             <div className="flex-grow" />
             {step < totalSteps ? (
-              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5">
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Next
               </Button>
             ) : (
-              <Button type="submit" className="rounded-lg px-4 py-2.5">
+              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Update Decision
               </Button>
             )}

@@ -72,7 +72,7 @@ export function AddActionsDropdown({
             action.onClick();
             closeMenu?.();
           }}
-          className="flex items-center gap-2 cursor-pointer py-2 px-3 rounded-md hover:bg-accent"
+          className="flex items-center gap-2 cursor-pointer py-2 px-3 rounded-md hover:bg-accent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <action.icon className="h-4 w-4" />
           {action.label}
@@ -85,7 +85,11 @@ export function AddActionsDropdown({
     return (
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>
-          <Button variant="default" size="icon" className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg z-50">
+          <Button 
+            variant="default" 
+            size="icon" 
+            className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg z-50 transition-all duration-200 ease-in-out hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <Plus className="h-6 w-6" />
             <span className="sr-only">Add New</span>
           </Button>
@@ -99,7 +103,7 @@ export function AddActionsDropdown({
               <Button
                 key={action.label}
                 variant="ghost"
-                className="w-full justify-start py-2 px-3 rounded-lg"
+                className="w-full justify-start py-2 px-3 rounded-lg transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={() => {
                   action.onClick();
                   setIsDrawerOpen(false);
@@ -117,10 +121,13 @@ export function AddActionsDropdown({
 
   return (
     <DropdownMenu>
-      <Tooltip>
+      <Tooltip delayDuration={300}>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button variant="default" className="rounded-lg px-4 py-2.5 text-base font-semibold shadow-sm hover:shadow-md transition-shadow w-56">
+            <Button 
+              variant="default" 
+              className="rounded-lg px-4 py-2.5 text-base font-semibold shadow-sm hover:shadow-md transition-shadow w-56 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add
             </Button>

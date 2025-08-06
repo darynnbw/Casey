@@ -1,15 +1,15 @@
 import { Entry } from "@/types";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
-import { Trash2, Link2, Pencil } from "lucide-react"; // Added Pencil icon
+import { Trash2, Link2, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface ScreenshotCardProps {
   screenshot: Entry;
   onDelete: (screenshot: Entry) => void;
-  onEdit: (screenshot: Entry) => void; // Added onEdit prop
-  index: number; // For rotation styling
+  onEdit: (screenshot: Entry) => void;
+  index: number;
 }
 
 const isUrl = (text: string) => {
@@ -19,25 +19,35 @@ const isUrl = (text: string) => {
 export function ScreenshotCard({ screenshot, onDelete, onEdit, index }: ScreenshotCardProps) {
   return (
     <div key={screenshot.id} className={cn(
-      "bg-card border border-border/50 shadow-lg shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
         <p className="text-sm text-muted-foreground">{format(new Date(screenshot.created_at), "h:mm a")}</p>
-        <div className="flex gap-1"> {/* Group buttons */}
-          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onEdit(screenshot)}>
+        <div className="flex gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+            onClick={() => onEdit(screenshot)}
+          >
             <Pencil className="h-4 w-4 text-muted-foreground" />
           </Button>
-          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" onClick={() => onDelete(screenshot)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2" 
+            onClick={() => onDelete(screenshot)}
+          >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         </div>
       </div>
 
       {screenshot.location && (
-        <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
+        <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 transition-colors duration-200 ease-in-out">
           {isUrl(screenshot.location) ? (
-            <a href={screenshot.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            <a href={screenshot.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               <Link2 className="h-3 w-3" />
               {screenshot.location}
             </a>
@@ -58,7 +68,7 @@ export function ScreenshotCard({ screenshot, onDelete, onEdit, index }: Screensh
       {screenshot.tags && screenshot.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">
           {screenshot.tags.map((tag, tagIndex) => (
-            <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs">{tag}</Badge>
+            <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out">{tag}</Badge>
           ))}
         </div>
       )}

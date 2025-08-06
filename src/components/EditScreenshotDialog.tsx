@@ -138,7 +138,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
               <>
                 <div>
                   <Label htmlFor="screenshot-file" className="text-base mb-2 block">Image</Label>
-                  <Input id="screenshot-file" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} className="rounded-md px-3 py-2 border border-input/70 focus:border-primary" />
+                  <Input id="screenshot-file" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
                   <p className="text-sm text-muted-foreground mt-1">Leave blank to keep current image.</p>
                 </div>
                 {preview && <img src={preview} alt="Screenshot preview" className="mt-2 max-h-40 w-full object-contain rounded-lg border border-border/50 shadow-sm" />}
@@ -147,7 +147,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                     type="button"
                     variant="link"
                     onClick={() => setShowCaption(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add caption
                   </Button>
@@ -161,7 +161,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                       onChange={(e) => setCaption(e.target.value)}
                       placeholder="Describe this screenshot..."
                       rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -175,7 +175,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                     type="button"
                     variant="link"
                     onClick={() => setShowTags(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add tags
                   </Button>
@@ -188,7 +188,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
                       placeholder="e.g., Wireframe, Mockup, Result"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                     <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
@@ -198,7 +198,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                     type="button"
                     variant="link"
                     onClick={() => setShowLocation(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add location
                   </Button>
@@ -211,7 +211,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g., /checkout or https://..."
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -222,7 +222,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           !selectedDate && "text-muted-foreground"
                         )}
                       >
@@ -279,17 +279,17 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
 
           <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
+              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Back
               </Button>
             )}
             <div className="flex-grow" />
             {step < totalSteps ? (
-              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5" disabled={step === 1 && !preview}>
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={step === 1 && !preview}>
                 Next
               </Button>
             ) : (
-              <Button type="submit" className="rounded-lg px-4 py-2.5" disabled={!preview}>
+              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={!preview}>
                 Update Screenshot
               </Button>
             )}

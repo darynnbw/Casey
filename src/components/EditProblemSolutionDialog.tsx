@@ -147,7 +147,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     placeholder="e.g., User confusion on checkout page"
                     autoFocus
                     required
-                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
                 {!showProblemDescription && (
@@ -155,7 +155,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     type="button"
                     variant="link"
                     onClick={() => setShowProblemDescription(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add problem description
                   </Button>
@@ -169,7 +169,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       onChange={(e) => setProblemDescription(e.target.value)}
                       placeholder="Describe the problem in detail."
                       rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -183,7 +183,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     type="button"
                     variant="link"
                     onClick={() => setShowOccurrenceLocation(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add occurrence location
                   </Button>
@@ -196,7 +196,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       value={occurrence_location}
                       onChange={(e) => setOccurrenceLocation(e.target.value)}
                       placeholder="e.g., /checkout, Login flow, User testing session"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -205,7 +205,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     type="button"
                     variant="link"
                     onClick={() => setShowSolution(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add solution
                   </Button>
@@ -219,7 +219,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       onChange={(e) => setSolution(e.target.value)}
                       placeholder="Describe the implemented solution."
                       rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 )}
@@ -233,7 +233,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     type="button"
                     variant="link"
                     onClick={() => setShowTags(true)}
-                    className="text-primary justify-start px-0 h-auto text-sm"
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Plus className="mr-1 h-4 w-4" /> Add tags
                   </Button>
@@ -246,7 +246,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
                       placeholder="e.g., Bug, Usability, Performance"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                     <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
@@ -258,7 +258,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary",
+                          "w-full justify-start text-left font-normal rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           !selectedDate && "text-muted-foreground"
                         )}
                       >
@@ -319,17 +319,17 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
 
           <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5">
+              <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Back
               </Button>
             )}
             <div className="flex-grow" />
             {step < totalSteps ? (
-              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5" disabled={step === 1 && !title.trim()}>
+              <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={step === 1 && !title.trim()}>
                 Next
               </Button>
             ) : (
-              <Button type="submit" className="rounded-lg px-4 py-2.5" disabled={!title.trim()}>
+              <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={!title.trim()}>
                 Update Problem/Solution
               </Button>
             )}

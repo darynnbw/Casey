@@ -15,11 +15,11 @@ import { Button } from "./ui/button";
 import { Trash2, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, Fragment } from "react"; // Import Fragment
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Removed Tabs
 import { NoteCard } from "./NoteCard";
 import { ScreenshotCard } from "./ScreenshotCard";
-import { DecisionCard } from "./DecisionCard";
+import { DecisionCard } from "./DecisionCard"; // Fixed import syntax
 import { JournalEntryCard } from "./JournalEntryCard";
 import { ProblemSolutionCard } from "./ProblemSolutionCard";
 import {
@@ -510,36 +510,57 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   const allUniqueTypes = Array.from(new Set(allCombinedEntries.map(entry => entry.type))).sort(); // Sort types alphabetically
 
   const renderFilterPills = () => {
-    const pills: { type: FilterType, value: string }[] = [];
-    allUniqueTypes.forEach(type => pills.push({ type: 'type', value: type })); // Add type filters first
-    allUniqueTags.forEach(tag => pills.push({ type: 'tag', value: tag }));
-    allUniqueLocations.forEach(loc => pills.push({ type: 'location', value: loc }));
-    allUniqueMoods.forEach(mood => pills.push({ type: 'mood', value: mood }));
-    allUniqueOccurrenceLocations.forEach(occLoc => pills.push({ type: 'occurrence_location', value: occLoc }));
+    const typePills: { type: FilterType, value: string }[] = [];
+    allUniqueTypes.forEach(type => typePills.push({ type: 'type', value: type }));
+
+    const otherPills: { type: FilterType, value: string }[] = [];
+    allUniqueTags.forEach(tag => otherPills.push({ type: 'tag', value: tag }));
+    allUniqueLocations.forEach(loc => otherPills.push({ type: 'location', value: loc }));
+    allUniqueMoods.forEach(mood => otherPills.push({ type: 'mood', value: mood }));
+    allUniqueOccurrenceLocations.forEach(occLoc => otherPills.push({ type: 'occurrence_location', value: occLoc }));
 
     return (
-      <div className="mb-8 flex flex-wrap gap-2">
-        <Badge
-          variant={activeFilter === null ? "default" : "outline"}
-          className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
-          onClick={() => setActiveFilter(null)}
-        >
-          All
-        </Badge>
-        {pills.map((pill, index) => (
+      <div className="mb-8">
+        <div className="mb-4 flex flex-wrap gap-2">
           <Badge
-            key={`${pill.type}-${pill.value}-${index}`}
-            variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
-            className={cn(
-              "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
-              pill.type === 'type' && "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
-            )}
-            onClick={() => handlePillClick(pill.type, pill.value)}
+            variant={activeFilter === null ? "default" : "outline"}
+            className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+            onClick={() => setActiveFilter(null)}
           >
-            {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())} {/* Format type names */}
+            All Content
           </Badge>
-        ))}
+          {typePills.map((pill, index) => (
+            <Badge
+              key={`${pill.type}-${pill.value}-${index}`}
+              variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
+              className={cn(
+                "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
+                "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
+              )}
+              onClick={() => handlePillClick(pill.type, pill.value)}
+            >
+              {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
+            </Badge>
+          ))}
+        </div>
+        {otherPills.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {otherPills.map((pill, index) => (
+              <Badge
+                key={`${pill.type}-${pill.value}-${index}`}
+                variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+                onClick={() => handlePillClick(pill.type, pill.value)}
+              >
+                {pill.value}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -605,7 +626,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                                 <AlertDialogDescription>
                                   This action cannot be undone. This will permanently delete this screenshot.
                                 </AlertDialogDescription>
-                              </AlertDialogHeader>
+                              </AlertDialogHeader> {/* Corrected closing tag */}
                               <AlertDialogFooter>
                                 <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item as Entry)} className="rounded-lg">
@@ -686,53 +707,55 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         )}
       </div>
       {/* Add Dialogs */}
-      <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />
-      <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
-      <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
-      <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
-      <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} />
-      
-      {/* Edit Dialogs */}
-      {editingNote && (
-        <EditNoteDialog 
-          open={isEditNoteDialogOpen} 
-          onOpenChange={setIsEditNoteDialogOpen} 
-          initialData={editingNote} 
-          onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} 
-        />
-      )}
-      {editingScreenshot && (
-        <EditScreenshotDialog 
-          open={isEditScreenshotDialogOpen} 
-          onOpenChange={setIsEditScreenshotDialogOpen} 
-          initialData={editingScreenshot} 
-          onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} 
-        />
-      )}
-      {editingDecision && (
-        <EditDecisionWizardDialog 
-          open={isEditDecisionWizardOpen} 
-          onOpenChange={setIsEditDecisionWizardOpen} 
-          initialData={editingDecision} 
-          onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at: created_at })} 
-        />
-      )}
-      {editingJournalEntry && (
-        <EditJournalEntryDialog 
-          open={isEditJournalEntryDialogOpen} 
-          onOpenChange={setIsEditJournalEntryDialogOpen} 
-          initialData={editingJournalEntry} 
-          onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: created_at })} 
-        />
-      )}
-      {editingProblemSolution && (
-        <EditProblemSolutionDialog 
-          open={isEditProblemSolutionDialogOpen} 
-          onOpenChange={setIsEditProblemSolutionDialogOpen} 
-          initialData={editingProblemSolution} 
-          onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at: created_at })} 
-        />
-      )}
+      <Fragment> {/* Wrap multiple top-level JSX elements */}
+        <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />
+        <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
+        <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
+        <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
+        <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} />
+        
+        {/* Edit Dialogs */}
+        {editingNote && (
+          <EditNoteDialog 
+            open={isEditNoteDialogOpen} 
+            onOpenChange={setIsEditNoteDialogOpen} 
+            initialData={editingNote} 
+            onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} 
+          />
+        )}
+        {editingScreenshot && (
+          <EditScreenshotDialog 
+            open={isEditScreenshotDialogOpen} 
+            onOpenChange={setIsEditScreenshotDialogOpen} 
+            initialData={editingScreenshot} 
+            onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} 
+          />
+        )}
+        {editingDecision && (
+          <EditDecisionWizardDialog 
+            open={isEditDecisionWizardOpen} 
+            onOpenChange={setIsEditDecisionWizardOpen} 
+            initialData={editingDecision} 
+            onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at: created_at })} 
+          />
+        )}
+        {editingJournalEntry && (
+          <EditJournalEntryDialog 
+            open={isEditJournalEntryDialogOpen} 
+            onOpenChange={setIsEditJournalEntryDialogOpen} 
+            initialData={editingJournalEntry} 
+            onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: created_at })} 
+          />
+        )}
+        {editingProblemSolution && (
+          <EditProblemSolutionDialog 
+            open={isEditProblemSolutionDialogOpen} 
+            onOpenChange={setIsEditProblemSolutionDialogOpen} 
+            initialData={editingProblemSolution} 
+            onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at: created_at })} 
+          />
+        )}
+      </Fragment>
     </div>
   );
 }

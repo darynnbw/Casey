@@ -1,18 +1,19 @@
 import { JournalEntry } from "@/types";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
-import { Trash2, Pencil } from "lucide-react"; // Added Pencil icon
+import { Trash2, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface JournalEntryCardProps {
   journalEntry: JournalEntry;
   onDelete: (journalEntryId: string) => void;
-  onEdit: (journalEntry: JournalEntry) => void; // Added onEdit prop
+  onEdit: (journalEntry: JournalEntry) => void;
+  onPillClick: (type: 'tag' | 'mood', value: string) => void; // Added onPillClick prop
   index: number; // For rotation styling
 }
 
-export function JournalEntryCard({ journalEntry, onDelete, onEdit, index }: JournalEntryCardProps) {
+export function JournalEntryCard({ journalEntry, onDelete, onEdit, onPillClick, index }: JournalEntryCardProps) {
   return (
     <div key={journalEntry.id} className={cn(
       "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
@@ -41,14 +42,25 @@ export function JournalEntryCard({ journalEntry, onDelete, onEdit, index }: Jour
       </div>
       <p className="whitespace-pre-wrap text-base text-foreground">{journalEntry.content}</p>
       {journalEntry.mood && (
-        <Badge variant="outline" className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800 transition-colors duration-200 ease-in-out">
+        <Badge 
+          variant="outline" 
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800 transition-colors duration-200 ease-in-out cursor-pointer hover:bg-purple-100/50 dark:hover:bg-purple-900/30"
+          onClick={() => onPillClick('mood', journalEntry.mood!)}
+        >
           Mood: {journalEntry.mood}
         </Badge>
       )}
       {journalEntry.tags && journalEntry.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">
           {journalEntry.tags.map((tag, tagIndex) => (
-            <Badge key={tagIndex} variant="secondary" className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out">{tag}</Badge>
+            <Badge 
+              key={tagIndex} 
+              variant="secondary" 
+              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out cursor-pointer hover:bg-secondary/80"
+              onClick={() => onPillClick('tag', tag)}
+            >
+              {tag}
+            </Badge>
           ))}
         </div>
       )}

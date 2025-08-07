@@ -6,7 +6,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { AddNoteDialog } from "./AddNoteDialog";
 import { AddScreenshotDialog } from "./AddScreenshotDialog";
-import { AddDecisionWizardDialog } from "./AddDecisionWizardDialog"; // Corrected import name
+import { AddDecisionWizardDialog } from "./AddDecisionWizardDialog";
 import { AddJournalEntryDialog } from "./AddJournalEntryDialog";
 import { AddProblemSolutionDialog } from "./AddProblemSolutionDialog";
 import { AddActionsDropdown } from "./AddActionsDropdown";
@@ -33,7 +33,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"; // Import Tooltip components
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Import new edit dialogs
 import { EditNoteDialog } from "./EditNoteDialog";
@@ -45,6 +45,8 @@ import { EditProblemSolutionDialog } from "./EditProblemSolutionDialog";
 interface ProjectDetailProps {
   project: Project;
 }
+
+type FilterType = 'tag' | 'location' | 'mood' | 'occurrence_location';
 
 const groupEntriesByDate = <T extends { created_at: string }>(entries: T[]) => {
   return entries.reduce((acc, entry) => {
@@ -101,7 +103,7 @@ const getRandomMessage = (messages: string[]) => {
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<{ type: FilterType, value: string } | null>(null);
   const [activeTab, setActiveTab] = useState("notes-screenshots");
 
   // State to control add dialogs
@@ -340,9 +342,9 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateDecisionMutation = useMutation({
-    mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
+    mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'>) => {
       if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = decisionData; // Destructure created_at
+      const { id, created_at, ...rest } = decisionData;
       const { data, error } = await supabase
         .from("decisions")
         .update({ ...rest, created_at: created_at })
@@ -393,9 +395,9 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string }
+    mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'>) => {
       if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = journalEntryData; // Destructure created_at
+      const { id, created_at, ...rest } = journalEntryData;
       const { data, error } = await supabase
         .from("journal_entries")
         .update({ ...rest, created_at: created_at })
@@ -427,7 +429,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
   // Mutations for Problem Solutions
   const addProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => { // Removed outcome from Omit
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
       if (!session) throw new Error("User not authenticated");
       const { createdAt, ...rest } = problemSolutionData;
       const { data, error } = await supabase
@@ -446,9 +448,9 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   });
 
   const updateProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => { // Removed & { createdAt: string } and outcome from Omit
+    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => {
       if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = problemSolutionData; // Destructure created_at
+      const { id, created_at, ...rest } = problemSolutionData;
       const { data, error } = await supabase
         .from("problem_solutions")
         .update({ ...rest, created_at: created_at })
@@ -482,24 +484,86 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     return <div className="flex justify-center items-center h-full"><LoadingSpinner /></div>;
   }
 
-  // Filter entries based on selectedTag
-  const allEntries = (entries || []).concat(
-    (decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, tags: d.tags || [] })),
-    (journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, tags: j.tags || [] })),
-    (problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, tags: p.tags || [] }))
-  );
+  // Combine all entries for filtering
+  const allCombinedEntries = [
+    ...(entries || []).map(e => ({ ...e, filterType: e.type as FilterType })),
+    ...(decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, filterType: 'decision' as FilterType, tags: d.tags || [] })),
+    ...(journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, filterType: 'journal' as FilterType, tags: j.tags || [], mood: j.mood || '' })),
+    ...(problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, filterType: 'problem_solution' as FilterType, tags: p.tags || [], occurrence_location: p.occurrence_location || '' }))
+  ];
 
-  const filteredEntries = selectedTag
-    ? allEntries.filter(entry => entry.tags?.includes(selectedTag))
-    : allEntries;
+  const handlePillClick = (type: FilterType, value: string) => {
+    if (activeFilter?.type === type && activeFilter?.value === value) {
+      setActiveFilter(null); // Deselect if already active
+    } else {
+      setActiveFilter({ type, value });
+    }
+  };
 
-  const groupedEntries = groupEntriesByDate(filteredEntries || []);
-  const groupedDecisions = groupEntriesByDate(decisions || []);
-  const groupedJournalEntries = groupEntriesByDate(journalEntries || []);
-  const groupedProblemSolutions = groupEntriesByDate(problemSolutions || []);
+  const getFilteredAndGroupedEntries = (entriesToFilter: any[], currentTab: string) => {
+    let filtered = entriesToFilter;
 
-  // Extract unique tags for pills (from all types of entries)
-  const allUniqueTags = Array.from(new Set(allEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
+    if (activeFilter) {
+      filtered = filtered.filter(entry => {
+        if (activeFilter.type === 'tag' && entry.tags?.includes(activeFilter.value)) return true;
+        if (activeFilter.type === 'location' && (entry as Entry).location === activeFilter.value) return true;
+        if (activeFilter.type === 'mood' && (entry as JournalEntry).mood === activeFilter.value) return true;
+        if (activeFilter.type === 'occurrence_location' && (entry as ProblemSolution).occurrence_location === activeFilter.value) return true;
+        return false;
+      });
+    }
+
+    // Further filter by tab type
+    if (currentTab === 'notes-screenshots') {
+      filtered = filtered.filter(entry => entry.type === 'note' || entry.type === 'screenshot');
+    } else if (currentTab === 'decisions') {
+      filtered = filtered.filter(entry => entry.type === 'decision');
+    } else if (currentTab === 'journal-entries') {
+      filtered = filtered.filter(entry => entry.type === 'journal');
+    } else if (currentTab === 'problem-solutions') {
+      filtered = filtered.filter(entry => entry.type === 'problem_solution');
+    }
+
+    return groupEntriesByDate(filtered);
+  };
+
+  const groupedFilteredEntries = getFilteredAndGroupedEntries(allCombinedEntries, activeTab);
+
+  // Collect all unique filter values for display
+  const allUniqueTags = Array.from(new Set(allCombinedEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
+  const allUniqueLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as Entry).location).map(e => (e as Entry).location!)));
+  const allUniqueMoods = Array.from(new Set(allCombinedEntries.filter(e => (e as JournalEntry).mood).map(e => (e as JournalEntry).mood!)));
+  const allUniqueOccurrenceLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as ProblemSolution).occurrence_location).map(e => (e as ProblemSolution).occurrence_location!)));
+
+  const renderFilterPills = () => {
+    const pills: { type: FilterType, value: string }[] = [];
+    allUniqueTags.forEach(tag => pills.push({ type: 'tag', value: tag }));
+    allUniqueLocations.forEach(loc => pills.push({ type: 'location', value: loc }));
+    allUniqueMoods.forEach(mood => pills.push({ type: 'mood', value: mood }));
+    allUniqueOccurrenceLocations.forEach(occLoc => pills.push({ type: 'occurrence_location', value: occLoc }));
+
+    return (
+      <div className="mb-8 flex flex-wrap gap-2">
+        <Badge
+          variant={activeFilter === null ? "default" : "outline"}
+          className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+          onClick={() => setActiveFilter(null)}
+        >
+          All
+        </Badge>
+        {pills.map((pill, index) => (
+          <Badge
+            key={`${pill.type}-${pill.value}-${index}`}
+            variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
+            className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90")}
+            onClick={() => handlePillClick(pill.type, pill.value)}
+          >
+            {pill.value}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -524,30 +588,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             <TabsTrigger value="problem-solutions" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Problem Solutions</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="notes-screenshots">
-            {allUniqueTags.length > 0 && (
-              <div className="mb-8 flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedTag === null ? "default" : "outline"}
-                  className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
-                  onClick={() => setSelectedTag(null)}
-                >
-                  All
-                </Badge>
-                {allUniqueTags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTag === tag ? "default" : "outline"}
-                    className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", selectedTag === tag && "bg-primary text-primary-foreground hover:bg-primary/90")}
-                    onClick={() => setSelectedTag(tag)}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
+          {renderFilterPills()}
 
-            {Object.keys(groupedEntries).length === 0 ? (
+          <TabsContent value="notes-screenshots">
+            {Object.keys(groupedFilteredEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
                 <p className="text-xl font-semibold text-foreground mb-2">No Notes or Screenshots Yet!</p>
                 <p className="text-lg text-muted-foreground">{getRandomMessage(notesScreenshotsMessages)}</p>
@@ -555,7 +599,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             ) : (
               <div className="space-y-10">
-                {Object.entries(groupedEntries).map(([date, entriesOnDate]) => (
+                {Object.entries(groupedFilteredEntries).map(([date, entriesOnDate]) => (
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -563,7 +607,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                         if (entry.type === 'note') {
                           return (
                             <AlertDialog key={entry.id}>
-                              <NoteCard note={entry} onDelete={() => {}} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} index={index} />
+                              <NoteCard note={entry as Entry} onDelete={() => deleteEntryMutation.mutate(entry as Entry)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
                               <AlertDialogContent className="rounded-xl">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -573,7 +617,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry)} className="rounded-lg">
+                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry as Entry)} className="rounded-lg">
                                     Delete
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
@@ -583,7 +627,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                         } else if (entry.type === 'screenshot') {
                           return (
                             <AlertDialog key={entry.id}>
-                              <ScreenshotCard screenshot={entry} onDelete={() => {}} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} index={index} />
+                              <ScreenshotCard screenshot={entry as Entry} onDelete={() => deleteEntryMutation.mutate(entry as Entry)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
                               <AlertDialogContent className="rounded-xl">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -593,7 +637,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry)} className="rounded-lg">
+                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry as Entry)} className="rounded-lg">
                                     Delete
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
@@ -611,7 +655,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </TabsContent>
 
           <TabsContent value="decisions">
-            {Object.keys(groupedDecisions).length === 0 ? (
+            {Object.keys(groupedFilteredEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
                 <p className="text-xl font-semibold text-foreground mb-2">No Decisions Logged Yet!</p>
                 <p className="text-lg text-muted-foreground">{getRandomMessage(decisionsMessages)}</p>
@@ -619,13 +663,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             ) : (
               <div className="space-y-10">
-                {Object.entries(groupedDecisions).map(([date, decisionsOnDate]) => (
+                {Object.entries(groupedFilteredEntries).map(([date, decisionsOnDate]) => (
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {decisionsOnDate.map((decision, index) => (
                         <AlertDialog key={decision.id}>
-                          <DecisionCard decision={decision} onDelete={() => {}} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} index={index} />
+                          <DecisionCard decision={decision as Decision} onDelete={() => deleteDecisionMutation.mutate(decision.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={handlePillClick} index={index} />
                           <AlertDialogContent className="rounded-xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -650,7 +694,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </TabsContent>
 
           <TabsContent value="journal-entries">
-            {Object.keys(groupedJournalEntries).length === 0 ? (
+            {Object.keys(groupedFilteredEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
                 <p className="text-xl font-semibold text-foreground mb-2">No Journal Entries Yet!</p>
                 <p className="text-lg text-muted-foreground">{getRandomMessage(journalEntriesMessages)}</p>
@@ -658,13 +702,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             ) : (
               <div className="space-y-10">
-                {Object.entries(groupedJournalEntries).map(([date, journalEntriesOnDate]) => (
+                {Object.entries(groupedFilteredEntries).map(([date, journalEntriesOnDate]) => (
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {journalEntriesOnDate.map((journalEntry, index) => (
                         <AlertDialog key={journalEntry.id}>
-                          <JournalEntryCard journalEntry={journalEntry} onDelete={() => {}} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} index={index} />
+                          <JournalEntryCard journalEntry={journalEntry as JournalEntry} onDelete={() => deleteJournalEntryMutation.mutate(journalEntry.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
                           <AlertDialogContent className="rounded-xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -689,7 +733,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </TabsContent>
 
           <TabsContent value="problem-solutions">
-            {Object.keys(groupedProblemSolutions).length === 0 ? (
+            {Object.keys(groupedFilteredEntries).length === 0 ? (
               <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
                 <p className="text-xl font-semibold text-foreground mb-2">No Problem Solutions Logged Yet!</p>
                 <p className="text-lg text-muted-foreground">{getRandomMessage(problemSolutionsMessages)}</p>
@@ -697,13 +741,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             ) : (
               <div className="space-y-10">
-                {Object.entries(groupedProblemSolutions).map(([date, problemSolutionsOnDate]) => (
+                {Object.entries(groupedFilteredEntries).map(([date, problemSolutionsOnDate]) => (
                   <div key={date}>
                     <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {problemSolutionsOnDate.map((ps, index) => (
                         <AlertDialog key={ps.id}>
-                          <ProblemSolutionCard problemSolution={ps} onDelete={() => {}} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} index={index} />
+                          <ProblemSolutionCard problemSolution={ps as ProblemSolution} onDelete={() => deleteProblemSolutionMutation.mutate(ps.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
                           <AlertDialogContent className="rounded-xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>

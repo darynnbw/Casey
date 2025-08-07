@@ -14,13 +14,12 @@ const modules = {
   toolbar: [
     ['bold', 'italic', 'underline', 'strike'], // Basic formatting
     [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Lists
-    [{ 'background': ['#FDFD96', '#77DD77', '#AEC6CF', '#FFB6C1'] }], // Pastel highlight colors
   ],
 };
 
 const formats = [
   'bold', 'italic', 'underline', 'strike',
-  'list', 'bullet', 'background', // Include 'background' for highlighting
+  'list', 'bullet',
 ];
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onChange, placeholder, className }) => {

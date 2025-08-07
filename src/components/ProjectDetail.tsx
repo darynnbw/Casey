@@ -530,7 +530,11 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           <Badge
             key={`${pill.type}-${pill.value}-${index}`}
             variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
-            className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90")}
+            className={cn(
+              "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
+              pill.type === 'type' && "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
+            )}
             onClick={() => handlePillClick(pill.type, pill.value)}
           >
             {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())} {/* Format type names */}

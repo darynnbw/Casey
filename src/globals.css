@@ -13,17 +13,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 228 83% 59%; /* Brand Blue */
-    --primary-foreground: 210 40% 98%; /* White */
+    --primary: 220 80% 40%; /* Softer blue/indigo */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 48 100% 80%; /* Brand Yellow */
-    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark text */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 16 100% 70%; /* Brand Orange */
-    --accent-foreground: 210 40% 98%; /* White */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -32,7 +32,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 1.5rem; /* More rounded corners */
+    --radius: 0.75rem; /* Slightly increased for more rounded corners */
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -90,19 +90,5 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif; /* Using Inter as a modern sans-serif font */
-  }
-
-  /* Custom styles for Quill editor to match theme */
-  .ql-toolbar.ql-snow {
-    @apply rounded-t-md border-b-0 border-input/70 bg-muted/20;
-  }
-
-  .ql-container.ql-snow {
-    @apply rounded-b-md border-input/70;
-  }
-
-  .ql-editor {
-    @apply text-foreground;
   }
 }

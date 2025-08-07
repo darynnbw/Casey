@@ -62,20 +62,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom colors based on the image
-        brand: {
-          blue: "hsl(228 83% 59%)", // For primary buttons/accents
-          yellow: "hsl(48 100% 80%)", // For the yellow card
-          orange: "hsl(16 100% 70%)", // For the orange card
-          dark: "hsl(220 10% 15%)", // For the dark card
-          lightGrey: "hsl(0 0% 95%)", // For general background
-          darkGreyText: "hsl(220 10% 20%)", // For dark text
-        },
       },
       borderRadius: {
-        lg: "1.5rem", // More rounded corners
-        md: "1rem",
-        sm: "0.75rem",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {
@@ -101,5 +92,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;

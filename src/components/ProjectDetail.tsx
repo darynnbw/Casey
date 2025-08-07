@@ -16,7 +16,7 @@ import { Trash2, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Removed Tabs
 import { NoteCard } from "./NoteCard";
 import { ScreenshotCard } from "./ScreenshotCard";
 import { DecisionCard } from "./DecisionCard";
@@ -46,10 +46,13 @@ interface ProjectDetailProps {
   project: Project;
 }
 
-type FilterType = 'tag' | 'location' | 'mood' | 'occurrence_location';
+type FilterType = 'tag' | 'location' | 'mood' | 'occurrence_location' | 'type'; // Added 'type' for filtering
 
 const groupEntriesByDate = <T extends { created_at: string }>(entries: T[]) => {
-  return entries.reduce((acc, entry) => {
+  // Sort entries by created_at in descending order before grouping
+  const sortedEntries = [...entries].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  return sortedEntries.reduce((acc, entry) => {
     const date = format(new Date(entry.created_at), "MMMM d, yyyy");
     if (!acc[date]) {
       acc[date] = [];
@@ -63,37 +66,18 @@ const isUrl = (text: string) => {
   return text.startsWith('http://') || text.startsWith('https://');
 }
 
-// Motivational messages for each section
-const notesScreenshotsMessages = [
-  "Capture every idea, big or small. Your next breakthrough starts with a note!",
-  "A picture is worth a thousand words. Document your progress with a screenshot!",
-  "Don't let brilliant insights fade. Jot them down here!",
-  "Your project's story unfolds with every note and screenshot you add.",
-  "Visualize your journey. Start adding notes and screenshots today!",
-];
-
-const decisionsMessages = [
-  "Every great product is built on thoughtful decisions. Log yours here!",
-  "Clarity comes from documenting choices. What's your next big decision?",
-  "Make your design process transparent. Start logging decisions now!",
-  "Future you will thank past you for documenting these insights.",
-  "Decisions shape destiny. Record the turning points of your project.",
-];
-
-const journalEntriesMessages = [
-  "Reflect and grow. Your daily insights are valuable here.",
-  "Track your journey, one entry at a time. What did you learn today?",
-  "A space for your thoughts, challenges, and triumphs. Start journaling!",
-  "Your personal log of progress and reflections. Add an entry!",
-  "Document your process, not just the outcome. Journal your way to success.",
-];
-
-const problemSolutionsMessages = [
-  "Turn challenges into triumphs. Document your problem-solving journey!",
-  "Every problem has a solution. Share how you conquered yours.",
-  "Learn from every hurdle. Log your problems and their brilliant solutions.",
-  "Your repository of challenges overcome. What problem did you solve today?",
-  "Build a knowledge base of solutions. Start documenting problems now!",
+// Motivational messages for empty state
+const emptyStateMessages = [
+  "Your project timeline is ready! Start by adding your first note, screenshot, decision, or journal entry.",
+  "Every great project starts with a single step. Let's build something amazing!",
+  "Your ideas are waiting to be brought to life. Add your first piece of content now!",
+  "The best way to predict the future is to create it. Begin documenting your case study!",
+  "Unleash your creativity. Your next breakthrough insight is just a click away!",
+  "Transform your vision into reality. Start adding content to your project today!",
+  "Great things never came from comfort zones. Add a new entry and explore!",
+  "The journey of a thousand miles begins with a single step. Your project journey starts here!",
+  "Don't wait for inspiration. Be the inspiration. Add new content to your project!",
+  "The only way to do great work is to love what you do. Start documenting what you're passionate about!",
 ];
 
 const getRandomMessage = (messages: string[]) => {
@@ -104,7 +88,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
   const [activeFilter, setActiveFilter] = useState<{ type: FilterType, value: string } | null>(null);
-  const [activeTab, setActiveTab] = useState("notes-screenshots");
+  const [randomEmptyMessage] = useState(getRandomMessage(emptyStateMessages)); // Pick one message on component mount
 
   // State to control add dialogs
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
@@ -484,12 +468,12 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     return <div className="flex justify-center items-center h-full"><LoadingSpinner /></div>;
   }
 
-  // Combine all entries for filtering
+  // Combine all entries for filtering and display
   const allCombinedEntries = [
     ...(entries || []).map(e => ({ ...e, filterType: e.type as FilterType })),
-    ...(decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, filterType: 'decision' as FilterType, tags: d.tags || [] })),
-    ...(journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, filterType: 'journal' as FilterType, tags: j.tags || [], mood: j.mood || '' })),
-    ...(problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, filterType: 'problem_solution' as FilterType, tags: p.tags || [], occurrence_location: p.occurrence_location || '' }))
+    ...(decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, filterType: 'type' as FilterType, tags: d.tags || [] })),
+    ...(journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, filterType: 'type' as FilterType, tags: j.tags || [], mood: j.mood || '' })),
+    ...(problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, filterType: 'type' as FilterType, tags: p.tags || [], occurrence_location: p.occurrence_location || '' }))
   ];
 
   const handlePillClick = (type: FilterType, value: string) => {
@@ -500,7 +484,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     }
   };
 
-  const getFilteredAndGroupedEntries = (entriesToFilter: any[], currentTab: string) => {
+  const getFilteredAndGroupedEntries = (entriesToFilter: any[]) => {
     let filtered = entriesToFilter;
 
     if (activeFilter) {
@@ -509,34 +493,25 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         if (activeFilter.type === 'location' && (entry as Entry).location === activeFilter.value) return true;
         if (activeFilter.type === 'mood' && (entry as JournalEntry).mood === activeFilter.value) return true;
         if (activeFilter.type === 'occurrence_location' && (entry as ProblemSolution).occurrence_location === activeFilter.value) return true;
+        if (activeFilter.type === 'type' && entry.type === activeFilter.value) return true; // Filter by type
         return false;
       });
     }
-
-    // Further filter by tab type
-    if (currentTab === 'notes-screenshots') {
-      filtered = filtered.filter(entry => entry.type === 'note' || entry.type === 'screenshot');
-    } else if (currentTab === 'decisions') {
-      filtered = filtered.filter(entry => entry.type === 'decision');
-    } else if (currentTab === 'journal-entries') {
-      filtered = filtered.filter(entry => entry.type === 'journal');
-    } else if (currentTab === 'problem-solutions') {
-      filtered = filtered.filter(entry => entry.type === 'problem_solution');
-    }
-
     return groupEntriesByDate(filtered);
   };
 
-  const groupedFilteredEntries = getFilteredAndGroupedEntries(allCombinedEntries, activeTab);
+  const groupedFilteredEntries = getFilteredAndGroupedEntries(allCombinedEntries);
 
   // Collect all unique filter values for display
   const allUniqueTags = Array.from(new Set(allCombinedEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
   const allUniqueLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as Entry).location).map(e => (e as Entry).location!)));
   const allUniqueMoods = Array.from(new Set(allCombinedEntries.filter(e => (e as JournalEntry).mood).map(e => (e as JournalEntry).mood!)));
   const allUniqueOccurrenceLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as ProblemSolution).occurrence_location).map(e => (e as ProblemSolution).occurrence_location!)));
+  const allUniqueTypes = Array.from(new Set(allCombinedEntries.map(entry => entry.type))).sort(); // Sort types alphabetically
 
   const renderFilterPills = () => {
     const pills: { type: FilterType, value: string }[] = [];
+    allUniqueTypes.forEach(type => pills.push({ type: 'type', value: type })); // Add type filters first
     allUniqueTags.forEach(tag => pills.push({ type: 'tag', value: tag }));
     allUniqueLocations.forEach(loc => pills.push({ type: 'location', value: loc }));
     allUniqueMoods.forEach(mood => pills.push({ type: 'mood', value: mood }));
@@ -558,7 +533,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90")}
             onClick={() => handlePillClick(pill.type, pill.value)}
           >
-            {pill.value}
+            {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())} {/* Format type names */}
           </Badge>
         ))}
       </div>
@@ -580,197 +555,131 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="notes-screenshots" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Notes & Screenshots</TabsTrigger>
-            <TabsTrigger value="decisions" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Decisions</TabsTrigger>
-            <TabsTrigger value="journal-entries" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Journal Entries</TabsTrigger>
-            <TabsTrigger value="problem-solutions" className="transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Problem Solutions</TabsTrigger>
-          </TabsList>
+        {renderFilterPills()}
 
-          {renderFilterPills()}
-
-          <TabsContent value="notes-screenshots">
-            {Object.keys(groupedFilteredEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
-                <p className="text-xl font-semibold text-foreground mb-2">No Notes or Screenshots Yet!</p>
-                <p className="text-lg text-muted-foreground">{getRandomMessage(notesScreenshotsMessages)}</p>
-                <p className="text-md mt-4">Click the "Add" button to get started.</p>
-              </div>
-            ) : (
-              <div className="space-y-10">
-                {Object.entries(groupedFilteredEntries).map(([date, entriesOnDate]) => (
-                  <div key={date}>
-                    <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {entriesOnDate.map((entry, index) => {
-                        if (entry.type === 'note') {
-                          return (
-                            <AlertDialog key={entry.id}>
-                              <NoteCard note={entry as Entry} onDelete={() => deleteEntryMutation.mutate(entry as Entry)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                              <AlertDialogContent className="rounded-xl">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete this note.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry as Entry)} className="rounded-lg">
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          );
-                        } else if (entry.type === 'screenshot') {
-                          return (
-                            <AlertDialog key={entry.id}>
-                              <ScreenshotCard screenshot={entry as Entry} onDelete={() => deleteEntryMutation.mutate(entry as Entry)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                              <AlertDialogContent className="rounded-xl">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete this screenshot.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteEntryMutation.mutate(entry as Entry)} className="rounded-lg">
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          );
-                        }
+        {Object.keys(groupedFilteredEntries).length === 0 ? (
+          <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
+            <p className="text-xl font-semibold text-foreground mb-2">No Content Yet!</p>
+            <p className="text-lg text-muted-foreground">{randomEmptyMessage}</p>
+            <p className="text-md mt-4">Click the "Add" button to get started.</p>
+          </div>
+        ) : (
+          <div className="space-y-10">
+            {Object.entries(groupedFilteredEntries).map(([date, entriesOnDate]) => (
+              <div key={date}>
+                <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {entriesOnDate.map((item, index) => {
+                    switch (item.type) {
+                      case 'note':
+                        return (
+                          <AlertDialog key={item.id}>
+                            <NoteCard note={item as Entry} onDelete={() => deleteEntryMutation.mutate(item as Entry)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
+                            <AlertDialogContent className="rounded-xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this note.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item as Entry)} className="rounded-lg">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        );
+                      case 'screenshot':
+                        return (
+                          <AlertDialog key={item.id}>
+                            <ScreenshotCard screenshot={item as Entry} onDelete={() => deleteEntryMutation.mutate(item as Entry)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
+                            <AlertDialogContent className="rounded-xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this screenshot.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item as Entry)} className="rounded-lg">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        );
+                      case 'decision':
+                        return (
+                          <AlertDialog key={item.id}>
+                            <DecisionCard decision={item as Decision} onDelete={() => deleteDecisionMutation.mutate(item.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={handlePillClick} index={index} />
+                            <AlertDialogContent className="rounded-xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this decision.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteDecisionMutation.mutate(item.id)} className="rounded-lg">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        );
+                      case 'journal':
+                        return (
+                          <AlertDialog key={item.id}>
+                            <JournalEntryCard journalEntry={item as JournalEntry} onDelete={() => deleteJournalEntryMutation.mutate(item.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
+                            <AlertDialogContent className="rounded-xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this journal entry.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteJournalEntryMutation.mutate(item.id)} className="rounded-lg">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        );
+                      case 'problem_solution':
+                        return (
+                          <AlertDialog key={item.id}>
+                            <ProblemSolutionCard problemSolution={item as ProblemSolution} onDelete={() => deleteProblemSolutionMutation.mutate(item.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
+                            <AlertDialogContent className="rounded-xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this problem/solution entry.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteProblemSolutionMutation.mutate(item.id)} className="rounded-lg">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        );
+                      default:
                         return null;
-                      })}
-                    </div>
-                  </div>
-                ))}
+                    }
+                  })}
+                </div>
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="decisions">
-            {Object.keys(groupedFilteredEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
-                <p className="text-xl font-semibold text-foreground mb-2">No Decisions Logged Yet!</p>
-                <p className="text-lg text-muted-foreground">{getRandomMessage(decisionsMessages)}</p>
-                <p className="text-md mt-4">Click the "Add" button to document your design choices.</p>
-              </div>
-            ) : (
-              <div className="space-y-10">
-                {Object.entries(groupedFilteredEntries).map(([date, decisionsOnDate]) => (
-                  <div key={date}>
-                    <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {decisionsOnDate.map((decision, index) => (
-                        <AlertDialog key={decision.id}>
-                          <DecisionCard decision={decision as Decision} onDelete={() => deleteDecisionMutation.mutate(decision.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={handlePillClick} index={index} />
-                          <AlertDialogContent className="rounded-xl">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this decision.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteDecisionMutation.mutate(decision.id)} className="rounded-lg">
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="journal-entries">
-            {Object.keys(groupedFilteredEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
-                <p className="text-xl font-semibold text-foreground mb-2">No Journal Entries Yet!</p>
-                <p className="text-lg text-muted-foreground">{getRandomMessage(journalEntriesMessages)}</p>
-                <p className="text-md mt-4">Click the "Add" button to log your thoughts and progress.</p>
-              </div>
-            ) : (
-              <div className="space-y-10">
-                {Object.entries(groupedFilteredEntries).map(([date, journalEntriesOnDate]) => (
-                  <div key={date}>
-                    <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {journalEntriesOnDate.map((journalEntry, index) => (
-                        <AlertDialog key={journalEntry.id}>
-                          <JournalEntryCard journalEntry={journalEntry as JournalEntry} onDelete={() => deleteJournalEntryMutation.mutate(journalEntry.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                          <AlertDialogContent className="rounded-xl">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this journal entry.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteJournalEntryMutation.mutate(journalEntry.id)} className="rounded-lg">
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="problem-solutions">
-            {Object.keys(groupedFilteredEntries).length === 0 ? (
-              <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
-                <p className="text-xl font-semibold text-foreground mb-2">No Problem Solutions Logged Yet!</p>
-                <p className="text-lg text-muted-foreground">{getRandomMessage(problemSolutionsMessages)}</p>
-                <p className="text-md mt-4">Click the "Add" button to document UX challenges and their resolutions.</p>
-              </div>
-            ) : (
-              <div className="space-y-10">
-                {Object.entries(groupedFilteredEntries).map(([date, problemSolutionsOnDate]) => (
-                  <div key={date}>
-                    <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {problemSolutionsOnDate.map((ps, index) => (
-                        <AlertDialog key={ps.id}>
-                          <ProblemSolutionCard problemSolution={ps as ProblemSolution} onDelete={() => deleteProblemSolutionMutation.mutate(ps.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                          <AlertDialogContent className="rounded-xl">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this problem/solution entry.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteProblemSolutionMutation.mutate(ps.id)} className="rounded-lg">
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            ))}
+          </div>
+        )}
       </div>
       {/* Add Dialogs */}
       <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />

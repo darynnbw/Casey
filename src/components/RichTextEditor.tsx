@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill's CSS for styling
 
 interface RichTextEditorProps {
-  id?: string; // Added id prop
+  id?: string;
   value: string;
   onChange: (content: string) => void;
   placeholder?: string;
@@ -12,27 +12,21 @@ interface RichTextEditorProps {
 
 const modules = {
   toolbar: [
-    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'color': [] }, { 'background': [] }],
-    [{ 'align': [] }],
-    ['clean']
+    ['bold', 'italic', 'underline', 'strike'], // Basic formatting
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Lists
   ],
 };
 
 const formats = [
-  'header', 'font', 'size',
-  'bold', 'italic', 'underline', 'strike', 'blockquote',
-  'list', 'bullet', 'indent',
-  'link', 'image', 'color', 'background', 'align',
+  'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet',
 ];
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onChange, placeholder, className }) => {
   return (
     <div className={className}>
       <ReactQuill
-        id={id} // Pass the id to ReactQuill
+        id={id}
         theme="snow"
         value={value}
         onChange={onChange}

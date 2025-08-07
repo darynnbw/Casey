@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Entry } from "@/types";
+import { RichTextEditor } from "./RichTextEditor"; // Import the new component
 
 interface EditScreenshotDialogProps {
   initialData: Entry | null;
@@ -155,13 +155,12 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                 {showCaption && (
                   <div>
                     <Label htmlFor="caption" className="text-base mb-2 block">Caption (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="caption"
                       value={caption}
-                      onChange={(e) => setCaption(e.target.value)}
+                      onChange={setCaption}
                       placeholder="Describe this screenshot..."
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[100px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -254,7 +253,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                 {caption && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Caption:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{caption || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: caption || "N/A" }} />
                   </div>
                 )}
                 {tags && (

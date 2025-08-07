@@ -41,23 +41,23 @@ export function DecisionCard({ decision, onDelete, onEdit, onPillClick, index }:
         </div>
       </div>
       <h4 className="text-lg font-semibold text-foreground">{decision.title}</h4>
-      {decision.summary && <p className="text-sm text-muted-foreground">{decision.summary}</p>}
+      {decision.summary && <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.summary }} />}
       {decision.context && (
         <div>
           <p className="text-sm font-medium text-foreground">Context:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.context}</p>
+          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.context }} />
         </div>
       )}
       {decision.alternatives && (
         <div>
           <p className="text-sm font-medium text-foreground">Alternatives:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.alternatives}</p>
+          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.alternatives }} />
         </div>
       )}
       {decision.rationale && (
         <div>
           <p className="text-sm font-medium text-foreground">Rationale:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.rationale}</p>
+          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.rationale }} />
         </div>
       )}
       {decision.tags && decision.tags.length > 0 && (

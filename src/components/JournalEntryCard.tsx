@@ -40,7 +40,7 @@ export function JournalEntryCard({ journalEntry, onDelete, onEdit, onPillClick, 
           </Button>
         </div>
       </div>
-      <p className="whitespace-pre-wrap text-base text-foreground">{journalEntry.content}</p>
+      <div className="prose dark:prose-invert max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: journalEntry.content || '' }} />
       {journalEntry.mood && (
         <Badge 
           variant="outline" 

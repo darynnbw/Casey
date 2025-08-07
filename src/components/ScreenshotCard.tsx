@@ -67,7 +67,7 @@ export function ScreenshotCard({ screenshot, onDelete, onEdit, onPillClick, inde
 
       <div className="space-y-3">
         <img src={screenshot.file_url} alt={screenshot.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-white shadow-sm" loading="lazy" />
-        {screenshot.content && <p className="text-sm italic text-muted-foreground">{screenshot.content}</p>}
+        {screenshot.content && <div className="prose dark:prose-invert max-w-none text-sm italic text-muted-foreground" dangerouslySetInnerHTML={{ __html: screenshot.content }} />}
       </div>
 
       {screenshot.tags && screenshot.tags.length > 0 && (

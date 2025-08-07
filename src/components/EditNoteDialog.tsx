@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -18,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Entry } from "@/types";
+import { RichTextEditor } from "./RichTextEditor"; // Import the new component
 
 interface EditNoteDialogProps {
   initialData: Entry | null;
@@ -111,15 +111,11 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
             {step === 1 && (
               <div>
                 <Label htmlFor="note-content" className="text-base mb-2 block">Note</Label>
-                <Textarea
-                  id="note-content"
+                <RichTextEditor
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={setContent}
                   placeholder="Type your note here..."
-                  rows={5}
-                  autoFocus
-                  required
-                  className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="min-h-[150px]" // Added min-height for better UX
                 />
               </div>
             )}
@@ -203,7 +199,7 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Note Content:</p>
-                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{content || "N/A"}</p>
+                  <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content || "N/A" }} />
                 </div>
                 {tags && (
                   <div>

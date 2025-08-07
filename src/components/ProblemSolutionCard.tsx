@@ -53,13 +53,13 @@ export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, onPillC
       {problemSolution.problem_description && (
         <div>
           <p className="text-sm font-medium text-foreground">Problem:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{problemSolution.problem_description}</p>
+          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.problem_description }} />
         </div>
       )}
       {problemSolution.solution && (
         <div>
           <p className="text-sm font-medium text-foreground">Solution:</p>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{problemSolution.solution}</p>
+          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.solution }} />
         </div>
       )}
       {problemSolution.tags && problemSolution.tags.length > 0 && (

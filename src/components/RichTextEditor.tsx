@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill's CSS for styling
 
 interface RichTextEditorProps {
+  id?: string; // Added id prop
   value: string;
   onChange: (content: string) => void;
   placeholder?: string;
@@ -27,10 +28,11 @@ const formats = [
   'link', 'image', 'color', 'background', 'align',
 ];
 
-export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className }) => {
+export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onChange, placeholder, className }) => {
   return (
     <div className={className}>
       <ReactQuill
+        id={id} // Pass the id to ReactQuill
         theme="snow"
         value={value}
         onChange={onChange}

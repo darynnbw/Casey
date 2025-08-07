@@ -65,7 +65,7 @@ export function NoteCard({ note, onDelete, onEdit, onPillClick, index }: NoteCar
         </Badge>
       )}
 
-      <p className="whitespace-pre-wrap text-base text-foreground">{note.content}</p>
+      <div className="prose dark:prose-invert max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
 
       {note.tags && note.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">

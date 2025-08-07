@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Decision } from "@/types";
+import { RichTextEditor } from "./RichTextEditor"; // Import the new component
 
 interface EditDecisionWizardDialogProps {
   initialData: Decision | null;
@@ -173,13 +173,12 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showSummary && (
                   <div>
                     <Label htmlFor="decision-summary" className="text-base mb-2 block">Summary (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="decision-summary"
                       value={summary}
-                      onChange={(e) => setSummary(e.target.value)}
+                      onChange={setSummary}
                       placeholder="A brief overview of the decision."
-                      rows={2}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[100px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -201,13 +200,12 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showContext && (
                   <div>
                     <Label htmlFor="decision-context" className="text-base mb-2 block">Problem/Context (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="decision-context"
                       value={context}
-                      onChange={(e) => setContext(e.target.value)}
+                      onChange={setContext}
                       placeholder="What problem or situation led to this decision?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[150px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -224,13 +222,12 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showAlternatives && (
                   <div>
                     <Label htmlFor="decision-alternatives" className="text-base mb-2 block">Alternatives Considered (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="decision-alternatives"
                       value={alternatives}
-                      onChange={(e) => setAlternatives(e.target.value)}
+                      onChange={setAlternatives}
                       placeholder="What other options were explored?"
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[100px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -252,13 +249,12 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showRationale && (
                   <div>
                     <Label htmlFor="decision-rationale" className="text-base mb-2 block">Why this decision? (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="decision-rationale"
                       value={rationale}
-                      onChange={(e) => setRationale(e.target.value)}
+                      onChange={setRationale}
                       placeholder="Explain the reasoning behind the chosen decision."
-                      rows={4}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[150px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -322,25 +318,25 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {summary && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Summary:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{summary || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: summary || "N/A" }} />
                   </div>
                 )}
                 {context && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Problem/Context:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{context || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: context || "N/A" }} />
                   </div>
                 )}
                 {alternatives && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Alternatives Considered:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{alternatives || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: alternatives || "N/A" }} />
                   </div>
                 )}
                 {rationale && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Why this decision?:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{rationale || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: rationale || "N/A" }} />
                   </div>
                 )}
                 {tags && (

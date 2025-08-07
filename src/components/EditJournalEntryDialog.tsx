@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { JournalEntry } from "@/types";
+import { RichTextEditor } from "./RichTextEditor"; // Import the new component
 
 interface EditJournalEntryDialogProps {
   initialData: JournalEntry | null;
@@ -118,15 +118,12 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
             {step === 1 && (
               <div>
                 <Label htmlFor="journal-content" className="text-base mb-2 block">Entry</Label>
-                <Textarea
+                <RichTextEditor
                   id="journal-content"
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={setContent}
                   placeholder="What's on your mind today? What did you work on?"
-                  rows={7}
-                  autoFocus
-                  required
-                  className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
+                  className="min-h-[150px]" // Added min-height for better UX
                 />
               </div>
             )}
@@ -215,7 +212,7 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Entry Content:</p>
-                  <p className="text-base text-muted-foreground whitespace-pre-wrap">{content || "N/A"}</p>
+                  <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content || "N/A" }} />
                 </div>
                 {mood && (
                   <div>

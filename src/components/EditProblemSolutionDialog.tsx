@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ProblemSolution } from "@/types";
+import { RichTextEditor } from "./RichTextEditor"; // Import the new component
 
 interface EditProblemSolutionDialogProps {
   initialData: ProblemSolution | null;
@@ -163,13 +163,12 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {showProblemDescription && (
                   <div>
                     <Label htmlFor="problem-description" className="text-base mb-2 block">Problem Description (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="problem-description"
                       value={problem_description}
-                      onChange={(e) => setProblemDescription(e.target.value)}
+                      onChange={setProblemDescription}
                       placeholder="Describe the problem in detail."
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[150px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -213,13 +212,12 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {showSolution && (
                   <div>
                     <Label htmlFor="solution" className="text-base mb-2 block">Solution (optional)</Label>
-                    <Textarea
+                    <RichTextEditor
                       id="solution"
                       value={solution}
-                      onChange={(e) => setSolution(e.target.value)}
+                      onChange={setSolution}
                       placeholder="Describe the implemented solution."
-                      rows={3}
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="min-h-[150px]" // Added min-height for better UX
                     />
                   </div>
                 )}
@@ -288,7 +286,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {problem_description && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Problem Description:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{problem_description || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: problem_description || "N/A" }} />
                   </div>
                 )}
                 {occurrence_location && (
@@ -300,7 +298,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {solution && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Solution:</p>
-                    <p className="text-base text-muted-foreground whitespace-pre-wrap">{solution || "N/A"}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: solution || "N/A" }} />
                   </div>
                 )}
                 {tags && (
@@ -330,7 +328,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
               </Button>
             ) : (
               <Button type="submit" className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" disabled={!title.trim()}>
-                Update Problem/Solution
+                Save Problem/Solution
               </Button>
             )}
           </DialogFooter>

@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -16,7 +17,6 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface AddNoteDialogProps {
   onAddNote: (content: string, tags: string[], location: string, createdAt: string) => void;
@@ -97,7 +97,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
             {step === 1 && (
               <div>
                 <Label htmlFor="note-content" className="text-base mb-2 block">Note</Label>
-                <MarkdownEditor
+                <Textarea
                   id="note-content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}

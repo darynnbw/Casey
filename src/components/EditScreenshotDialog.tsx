@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Entry } from "@/types";
-import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface EditScreenshotDialogProps {
   initialData: Entry | null;
@@ -155,7 +155,7 @@ export function EditScreenshotDialog({ initialData, onUpdateScreenshot, open, on
                 {showCaption && (
                   <div>
                     <Label htmlFor="caption" className="text-base mb-2 block">Caption (optional)</Label>
-                    <MarkdownEditor
+                    <Textarea
                       id="caption"
                       value={caption}
                       onChange={(e) => setCaption(e.target.value)}

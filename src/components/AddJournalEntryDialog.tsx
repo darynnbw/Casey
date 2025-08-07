@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,7 +24,6 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface AddJournalEntryDialogProps {
   onAddJournalEntry: (content: string, mood: string, tags: string[], createdAt: string) => void;
@@ -104,7 +104,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
             {step === 1 && (
               <div>
                 <Label htmlFor="journal-content" className="text-base mb-2 block">Entry</Label>
-                <MarkdownEditor
+                <Textarea
                   id="journal-content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}

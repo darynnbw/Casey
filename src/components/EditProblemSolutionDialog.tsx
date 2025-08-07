@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Plus, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ProblemSolution } from "@/types";
-import { MarkdownEditor } from "./MarkdownEditor"; // Import MarkdownEditor
 
 interface EditProblemSolutionDialogProps {
   initialData: ProblemSolution | null;
@@ -163,7 +163,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {showProblemDescription && (
                   <div>
                     <Label htmlFor="problem-description" className="text-base mb-2 block">Problem Description (optional)</Label>
-                    <MarkdownEditor
+                    <Textarea
                       id="problem-description"
                       value={problem_description}
                       onChange={(e) => setProblemDescription(e.target.value)}
@@ -213,7 +213,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {showSolution && (
                   <div>
                     <Label htmlFor="solution" className="text-base mb-2 block">Solution (optional)</Label>
-                    <MarkdownEditor
+                    <Textarea
                       id="solution"
                       value={solution}
                       onChange={(e) => setSolution(e.target.value)}

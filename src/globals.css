@@ -4,82 +4,82 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%; /* Slightly off-white for a softer feel */
-    --foreground: 222.2 84% 4.9%;
-
+    /* Neutrals */
+    --background: 0 0% 99%; /* Off-white */
+    --foreground: 240 10% 3.9%; /* Almost black */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
 
-    --primary: 220 80% 40%; /* Softer blue/indigo */
-    --primary-foreground: 210 40% 98%;
+    /* Primary (Barley Corn) */
+    --primary: 57 28% 48%;
+    --primary-foreground: 60 9% 97%; /* Light color for contrast */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary (Texas Rose) */
+    --secondary: 38 98% 65%;
+    --secondary-foreground: 38 98% 15%; /* Dark color for contrast */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent (Jaffa) */
+    --accent: 23 92% 58%;
+    --accent-foreground: 0 0% 98%; /* Light color for contrast */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    /* Other */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 57 28% 48%; /* Primary color for focus rings */
+    --radius: 0.75rem;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.75rem; /* Slightly increased for more rounded corners */
-
-    --sidebar-background: 0 0% 98%;
+    /* Sidebar */
+    --sidebar-background: 60 20% 98%; /* Very light tint of the palette */
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 60 10% 91%;
+    --sidebar-accent: 53 48% 88%; /* Lighter Sundance for selection */
+    --sidebar-accent-foreground: 53 48% 15%; /* Dark text for selection */
+    --sidebar-ring: 57 28% 48%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Neutrals */
+    --background: 240 10% 3.9%; /* Almost black */
+    --foreground: 0 0% 98%; /* Off-white */
+    --card: 240 5.9% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5.9% 10%;
+    --popover-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* Primary (Sundance) */
+    --primary: 53 48% 56%;
+    --primary-foreground: 53 48% 10%; /* Dark color for contrast */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    /* Secondary (Jaffa) */
+    --secondary: 23 92% 58%;
+    --secondary-foreground: 23 92% 10%; /* Dark color for contrast */
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Accent (Texas Rose) */
+    --accent: 38 98% 65%;
+    --accent-foreground: 38 98% 15%; /* Dark color for contrast */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    /* Other */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 53 48% 56%; /* Primary color for focus rings */
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Sidebar */
     --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 57 28% 25%; /* Darker Barley Corn for selection */
+    --sidebar-accent-foreground: 57 28% 90%; /* Light text for selection */
+    --sidebar-ring: 53 48% 56%;
   }
 }
 

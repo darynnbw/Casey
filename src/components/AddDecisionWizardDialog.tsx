@@ -91,7 +91,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
       {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
+          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold"> {/* Smaller font, lighter weight */}
               {step === 1 && "Log New Decision: Details"}

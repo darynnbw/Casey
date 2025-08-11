@@ -86,7 +86,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
+          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "New Journal Entry: Content"}

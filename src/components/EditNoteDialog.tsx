@@ -93,7 +93,7 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 px-4">
+          <DialogHeader className="mb-6 pl-4 pr-8"> {/* Adjusted padding */}
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Note: Content"}

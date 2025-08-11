@@ -9,10 +9,11 @@ interface ProblemSolutionCardProps {
   problemSolution: ProblemSolution;
   onDelete: (problemSolutionId: string) => void;
   onEdit: (problemSolution: ProblemSolution) => void;
+  onPillClick: (type: 'tag' | 'occurrence_location', value: string) => void; // Added onPillClick prop
   index: number; // For rotation styling
 }
 
-export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, index }: ProblemSolutionCardProps) {
+export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, onPillClick, index }: ProblemSolutionCardProps) {
   return (
     <div key={problemSolution.id} className={cn(
       "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-3",
@@ -43,7 +44,8 @@ export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, index }
       {problemSolution.occurrence_location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 transition-colors duration-200 ease-in-out"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 transition-colors duration-200 ease-in-out cursor-pointer hover:bg-blue-100/50 dark:hover:bg-blue-900/30"
+          onClick={() => onPillClick('occurrence_location', problemSolution.occurrence_location!)}
         >
           Location: {problemSolution.occurrence_location}
         </Badge>
@@ -66,7 +68,8 @@ export function ProblemSolutionCard({ problemSolution, onDelete, onEdit, index }
             <Badge 
               key={tagIndex} 
               variant="secondary" 
-              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out"
+              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out cursor-pointer hover:bg-secondary/80"
+              onClick={() => onPillClick('tag', tag)}
             >
               {tag}
             </Badge>

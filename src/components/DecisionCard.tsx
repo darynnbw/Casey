@@ -66,7 +66,7 @@ export function DecisionCard({ decision, onEdit, index }: DecisionCardProps) {
             <Badge 
               key={tagIndex} 
               variant="secondary" 
-              className="rounded-full px-3 py-1 text-xs"
+              className="rounded-full px-3 py-1 text-xs bg-accent text-accent-foreground border-transparent"
             >
               {tag}
             </Badge>

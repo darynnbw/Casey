@@ -16,10 +16,9 @@ import { Trash2, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState, Fragment } from "react"; // Import Fragment
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Removed Tabs
 import { NoteCard } from "./NoteCard";
 import { ScreenshotCard } from "./ScreenshotCard";
-import { DecisionCard } from "./DecisionCard"; // Fixed import syntax
+import { DecisionCard } from "./DecisionCard";
 import { JournalEntryCard } from "./JournalEntryCard";
 import { ProblemSolutionCard } from "./ProblemSolutionCard";
 import {
@@ -31,9 +30,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { MultiSelectDropdown, OptionType } from "./MultiSelectDropdown";
 
 // Import new edit dialogs
 import { EditNoteDialog } from "./EditNoteDialog";
@@ -46,10 +46,9 @@ interface ProjectDetailProps {
   project: Project;
 }
 
-type FilterType = 'tag' | 'location' | 'mood' | 'occurrence_location' | 'type'; // Added 'type' for filtering
+type FilterType = 'tag' | 'location' | 'mood' | 'occurrence_location' | 'type';
 
 const groupEntriesByDate = <T extends { created_at: string }>(entries: T[]) => {
-  // Sort entries by created_at in descending order before grouping
   const sortedEntries = [...entries].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return sortedEntries.reduce((acc, entry) => {
@@ -66,7 +65,6 @@ const isUrl = (text: string) => {
   return text.startsWith('http://') || text.startsWith('https://');
 }
 
-// Motivational messages for empty state
 const emptyStateMessages = [
   "Your project timeline is ready! Start by adding your first note, screenshot, decision, or journal entry.",
   "Every great project starts with a single step. Let's build something amazing!",
@@ -87,8 +85,11 @@ const getRandomMessage = (messages: string[]) => {
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [activeFilter, setActiveFilter] = useState<{ type: FilterType, value: string } | null>(null);
-  const [randomEmptyMessage] = useState(getRandomMessage(emptyStateMessages)); // Pick one message on component mount
+  const [randomEmptyMessage] = useState(getRandomMessage(emptyStateMessages));
+
+  // State for filters
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // State to control add dialogs
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
@@ -189,388 +190,332 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     queryFn: fetchProblemSolutions,
   });
 
-  // Mutations for Notes & Screenshots
-  const addNoteMutation = useMutation({
-    mutationFn: async ({ content, tags, location, createdAt }: { content: string, tags: string[], location: string, createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      const { data, error } = await supabase
-        .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location, created_at: createdAt }])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
-      showSuccess("Note added.");
-      setIsNoteDialogOpen(false);
-    },
-    onError: () => showError("Could not add note."),
-  });
-
-  const updateNoteMutation = useMutation({
-    mutationFn: async ({ id, content, tags, location, createdAt }: { id: string, content: string, tags: string[], location: string, createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      const { data, error } = await supabase
-        .from("entries")
-        .update({ content, tags, location, created_at: createdAt })
-        .eq('id', id)
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
-      showSuccess("Note updated.");
-      setIsEditNoteDialogOpen(false);
-      setEditingNote(null);
-    },
-    onError: () => showError("Could not update note."),
-  });
-
-  const addScreenshotMutation = useMutation({
-    mutationFn: async ({ file, caption, tags, location, createdAt }: { file: File, caption: string, tags: string[], location: string, createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      
-      const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from("project_files").upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } = { publicUrl: '' } } = supabase.storage.from("project_files").getPublicUrl(filePath);
-
-      const { data, error: insertError } = await supabase
-        .from("entries")
-        .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location, created_at: createdAt }])
-        .select();
-      if (insertError) throw insertError;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
-      showSuccess("Screenshot added.");
-      setIsScreenshotDialogOpen(false);
-    },
-    onError: () => showError("Could not add screenshot."),
-  });
-
-  const updateScreenshotMutation = useMutation({
-    mutationFn: async ({ id, file, caption, tags, location, createdAt, oldFileUrl }: { id: string, file: File | null, caption: string, tags: string[], location: string, createdAt: string, oldFileUrl?: string | null }) => {
-      if (!session) throw new Error("User not authenticated");
-      
-      let fileUrl = oldFileUrl;
-      if (file) {
-        // Delete old file if it exists
-        if (oldFileUrl) {
-          const oldFilePath = oldFileUrl.split('/project_files/')[1];
-          await supabase.storage.from('project_files').remove([oldFilePath]);
-        }
-        // Upload new file
+  // Mutations (omitted for brevity, they remain the same)
+    // Mutations for Notes & Screenshots
+    const addNoteMutation = useMutation({
+      mutationFn: async ({ content, tags, location, createdAt }: { content: string, tags: string[], location: string, createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        const { data, error } = await supabase
+          .from("entries")
+          .insert([{ project_id: project.id, user_id: session.user.id, type: "note", content, tags, location, created_at: createdAt }])
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
+        showSuccess("Note added.");
+        setIsNoteDialogOpen(false);
+      },
+      onError: () => showError("Could not add note."),
+    });
+  
+    const updateNoteMutation = useMutation({
+      mutationFn: async ({ id, content, tags, location, createdAt }: { id: string, content: string, tags: string[], location: string, createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        const { data, error } = await supabase
+          .from("entries")
+          .update({ content, tags, location, created_at: createdAt })
+          .eq('id', id)
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
+        showSuccess("Note updated.");
+        setIsEditNoteDialogOpen(false);
+        setEditingNote(null);
+      },
+      onError: () => showError("Could not update note."),
+    });
+  
+    const addScreenshotMutation = useMutation({
+      mutationFn: async ({ file, caption, tags, location, createdAt }: { file: File, caption: string, tags: string[], location: string, createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        
         const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
         const { error: uploadError } = await supabase.storage.from("project_files").upload(filePath, file);
         if (uploadError) throw uploadError;
+  
         const { data: { publicUrl } = { publicUrl: '' } } = supabase.storage.from("project_files").getPublicUrl(filePath);
-        fileUrl = publicUrl;
-      }
-
-      const { data, error: updateError } = await supabase
-        .from("entries")
-        .update({ content: caption, file_url: fileUrl, tags, location, created_at: createdAt })
-        .eq('id', id)
-        .select();
-      if (updateError) throw updateError;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
-      showSuccess("Screenshot updated.");
-      setIsEditScreenshotDialogOpen(false);
-      setEditingScreenshot(null);
-    },
-    onError: () => showError("Could not update screenshot."),
-  });
-
-  const deleteEntryMutation = useMutation({
-    mutationFn: async (entry: Entry) => {
-      if (entry.type === 'screenshot' && entry.file_url) {
-        const filePath = entry.file_url.split('/project_files/')[1];
-        await supabase.storage.from('project_files').remove([filePath]);
-      }
-      const { error } = await supabase.from('entries').delete().eq('id', entry.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entries', project.id] });
-      showSuccess("Entry deleted.");
-    },
-    onError: () => showError("Could not delete entry."),
-  });
-
-  // Mutations for Decisions
-  const addDecisionMutation = useMutation({
-    mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      const { createdAt, ...rest } = decisionData;
-      const { data, error } = await supabase
-        .from("decisions")
-        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decisions", project.id] });
-      showSuccess("Decision logged.");
-      setIsDecisionWizardOpen(false);
-    },
-    onError: () => showError("Could not log decision."),
-  });
-
-  const updateDecisionMutation = useMutation({
-    mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'>) => {
-      if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = decisionData;
-      const { data, error } = await supabase
-        .from("decisions")
-        .update({ ...rest, created_at: created_at })
-        .eq('id', id)
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decisions", project.id] });
-      showSuccess("Decision updated.");
-      setIsEditDecisionWizardOpen(false);
-      setEditingDecision(null);
-    },
-    onError: () => showError("Could not update decision."),
-  });
-
-  const deleteDecisionMutation = useMutation({
-    mutationFn: async (decisionId: string) => {
-      const { error } = await supabase.from('decisions').delete().eq('id', decisionId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['decisions', project.id] });
-      showSuccess("Decision deleted.");
-    },
-    onError: () => showError("Could not delete decision."),
-  });
-
-  // Mutations for Journal Entries
-  const addJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryData: Omit<JournalEntry, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      const { createdAt, ...rest } = journalEntryData;
-      const { data, error } = await supabase
-        .from("journal_entries")
-        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journal_entries", project.id] });
-      showSuccess("Journal entry added.");
-      setIsJournalEntryDialogOpen(false);
-    },
-    onError: () => showError("Could not add journal entry."),
-  });
-
-  const updateJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'>) => {
-      if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = journalEntryData;
-      const { data, error } = await supabase
-        .from("journal_entries")
-        .update({ ...rest, created_at: created_at })
-        .eq('id', id)
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journal_entries", project.id] });
-      showSuccess("Journal entry updated.");
-      setIsEditJournalEntryDialogOpen(false);
-      setEditingJournalEntry(null);
-    },
-    onError: () => showError("Could not update journal entry."),
-  });
-
-  const deleteJournalEntryMutation = useMutation({
-    mutationFn: async (journalEntryId: string) => {
-      const { error } = await supabase.from('journal_entries').delete().eq('id', journalEntryId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['journal_entries', project.id] });
-      showSuccess("Journal entry deleted.");
-    },
-    onError: () => showError("Could not delete journal entry."),
-  });
-
-  // Mutations for Problem Solutions
-  const addProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
-      if (!session) throw new Error("User not authenticated");
-      const { createdAt, ...rest } = problemSolutionData;
-      const { data, error } = await supabase
-        .from("problem_solutions")
-        .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["problem_solutions", project.id] });
-      showSuccess("Problem/Solution logged.");
-      setIsProblemSolutionDialogOpen(false);
-    },
-    onError: () => showError("Could not log problem/solution."),
-  });
-
-  const updateProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => {
-      if (!session) throw new Error("User not authenticated");
-      const { id, created_at, ...rest } = problemSolutionData;
-      const { data, error } = await supabase
-        .from("problem_solutions")
-        .update({ ...rest, created_at: created_at })
-        .eq('id', id)
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["problem_solutions", project.id] });
-      showSuccess("Problem/Solution updated.");
-      setIsEditProblemSolutionDialogOpen(false);
-      setEditingProblemSolution(null);
-    },
-    onError: () => showError("Could not update problem/solution."),
-  });
-
-  const deleteProblemSolutionMutation = useMutation({
-    mutationFn: async (problemSolutionId: string) => {
-      const { error } = await supabase.from('problem_solutions').delete().eq('id', problemSolutionId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['problem_solutions', project.id] });
-      showSuccess("Problem/Solution deleted.");
-    },
-    onError: () => showError("Could not delete problem/solution."),
-  });
+  
+        const { data, error: insertError } = await supabase
+          .from("entries")
+          .insert([{ project_id: project.id, user_id: session.user.id, type: "screenshot", content: caption, file_url: publicUrl, tags, location, created_at: createdAt }])
+          .select();
+        if (insertError) throw insertError;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
+        showSuccess("Screenshot added.");
+        setIsScreenshotDialogOpen(false);
+      },
+      onError: () => showError("Could not add screenshot."),
+    });
+  
+    const updateScreenshotMutation = useMutation({
+      mutationFn: async ({ id, file, caption, tags, location, createdAt, oldFileUrl }: { id: string, file: File | null, caption: string, tags: string[], location: string, createdAt: string, oldFileUrl?: string | null }) => {
+        if (!session) throw new Error("User not authenticated");
+        
+        let fileUrl = oldFileUrl;
+        if (file) {
+          if (oldFileUrl) {
+            const oldFilePath = oldFileUrl.split('/project_files/')[1];
+            await supabase.storage.from('project_files').remove([oldFilePath]);
+          }
+          const filePath = `${session.user.id}/${project.id}/${Date.now()}-${file.name}`;
+          const { error: uploadError } = await supabase.storage.from("project_files").upload(filePath, file);
+          if (uploadError) throw uploadError;
+          const { data: { publicUrl } = { publicUrl: '' } } = supabase.storage.from("project_files").getPublicUrl(filePath);
+          fileUrl = publicUrl;
+        }
+  
+        const { data, error: updateError } = await supabase
+          .from("entries")
+          .update({ content: caption, file_url: fileUrl, tags, location, created_at: createdAt })
+          .eq('id', id)
+          .select();
+        if (updateError) throw updateError;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["entries", project.id] });
+        showSuccess("Screenshot updated.");
+        setIsEditScreenshotDialogOpen(false);
+        setEditingScreenshot(null);
+      },
+      onError: () => showError("Could not update screenshot."),
+    });
+  
+    const deleteEntryMutation = useMutation({
+      mutationFn: async (entry: Entry) => {
+        if (entry.type === 'screenshot' && entry.file_url) {
+          const filePath = entry.file_url.split('/project_files/')[1];
+          await supabase.storage.from('project_files').remove([filePath]);
+        }
+        const { error } = await supabase.from('entries').delete().eq('id', entry.id);
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['entries', project.id] });
+        showSuccess("Entry deleted.");
+      },
+      onError: () => showError("Could not delete entry."),
+    });
+  
+    // Mutations for Decisions
+    const addDecisionMutation = useMutation({
+      mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        const { createdAt, ...rest } = decisionData;
+        const { data, error } = await supabase
+          .from("decisions")
+          .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["decisions", project.id] });
+        showSuccess("Decision logged.");
+        setIsDecisionWizardOpen(false);
+      },
+      onError: () => showError("Could not log decision."),
+    });
+  
+    const updateDecisionMutation = useMutation({
+      mutationFn: async (decisionData: Omit<Decision, 'project_id' | 'user_id'>) => {
+        if (!session) throw new Error("User not authenticated");
+        const { id, created_at, ...rest } = decisionData;
+        const { data, error } = await supabase
+          .from("decisions")
+          .update({ ...rest, created_at: created_at })
+          .eq('id', id)
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["decisions", project.id] });
+        showSuccess("Decision updated.");
+        setIsEditDecisionWizardOpen(false);
+        setEditingDecision(null);
+      },
+      onError: () => showError("Could not update decision."),
+    });
+  
+    const deleteDecisionMutation = useMutation({
+      mutationFn: async (decisionId: string) => {
+        const { error } = await supabase.from('decisions').delete().eq('id', decisionId);
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['decisions', project.id] });
+        showSuccess("Decision deleted.");
+      },
+      onError: () => showError("Could not delete decision."),
+    });
+  
+    // Mutations for Journal Entries
+    const addJournalEntryMutation = useMutation({
+      mutationFn: async (journalEntryData: Omit<JournalEntry, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        const { createdAt, ...rest } = journalEntryData;
+        const { data, error } = await supabase
+          .from("journal_entries")
+          .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["journal_entries", project.id] });
+        showSuccess("Journal entry added.");
+        setIsJournalEntryDialogOpen(false);
+      },
+      onError: () => showError("Could not add journal entry."),
+    });
+  
+    const updateJournalEntryMutation = useMutation({
+      mutationFn: async (journalEntryData: Omit<JournalEntry, 'project_id' | 'user_id'>) => {
+        if (!session) throw new Error("User not authenticated");
+        const { id, created_at, ...rest } = journalEntryData;
+        const { data, error } = await supabase
+          .from("journal_entries")
+          .update({ ...rest, created_at: created_at })
+          .eq('id', id)
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["journal_entries", project.id] });
+        showSuccess("Journal entry updated.");
+        setIsEditJournalEntryDialogOpen(false);
+        setEditingJournalEntry(null);
+      },
+      onError: () => showError("Could not update journal entry."),
+    });
+  
+    const deleteJournalEntryMutation = useMutation({
+      mutationFn: async (journalEntryId: string) => {
+        const { error } = await supabase.from('journal_entries').delete().eq('id', journalEntryId);
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['journal_entries', project.id] });
+        showSuccess("Journal entry deleted.");
+      },
+      onError: () => showError("Could not delete journal entry."),
+    });
+  
+    // Mutations for Problem Solutions
+    const addProblemSolutionMutation = useMutation({
+      mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
+        if (!session) throw new Error("User not authenticated");
+        const { createdAt, ...rest } = problemSolutionData;
+        const { data, error } = await supabase
+          .from("problem_solutions")
+          .insert([{ ...rest, project_id: project.id, user_id: session.user.id, created_at: createdAt }])
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["problem_solutions", project.id] });
+        showSuccess("Problem/Solution logged.");
+        setIsProblemSolutionDialogOpen(false);
+      },
+      onError: () => showError("Could not log problem/solution."),
+    });
+  
+    const updateProblemSolutionMutation = useMutation({
+      mutationFn: async (problemSolutionData: Omit<ProblemSolution, 'project_id' | 'user_id'>) => {
+        if (!session) throw new Error("User not authenticated");
+        const { id, created_at, ...rest } = problemSolutionData;
+        const { data, error } = await supabase
+          .from("problem_solutions")
+          .update({ ...rest, created_at: created_at })
+          .eq('id', id)
+          .select();
+        if (error) throw error;
+        return data[0];
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["problem_solutions", project.id] });
+        showSuccess("Problem/Solution updated.");
+        setIsEditProblemSolutionDialogOpen(false);
+        setEditingProblemSolution(null);
+      },
+      onError: () => showError("Could not update problem/solution."),
+    });
+  
+    const deleteProblemSolutionMutation = useMutation({
+      mutationFn: async (problemSolutionId: string) => {
+        const { error } = await supabase.from('problem_solutions').delete().eq('id', problemSolutionId);
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['problem_solutions', project.id] });
+        showSuccess("Problem/Solution deleted.");
+      },
+      onError: () => showError("Could not delete problem/solution."),
+    });
 
   if (isLoadingEntries || isLoadingDecisions || isLoadingJournalEntries || isLoadingProblemSolutions) {
     return <div className="flex justify-center items-center h-full"><LoadingSpinner /></div>;
   }
 
-  // Combine all entries for filtering and display
   const allCombinedEntries = [
-    ...(entries || []).map(e => ({ ...e, filterType: e.type as FilterType })),
-    ...(decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, filterType: 'type' as FilterType, tags: d.tags || [] })),
-    ...(journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, filterType: 'type' as FilterType, tags: j.tags || [], mood: j.mood || '' })),
-    ...(problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, filterType: 'type' as FilterType, tags: p.tags || [], occurrence_location: p.occurrence_location || '' }))
+    ...(entries || []).map(e => ({ ...e, type: e.type })),
+    ...(decisions || []).map(d => ({ ...d, type: 'decision', content: d.title, tags: d.tags || [] })),
+    ...(journalEntries || []).map(j => ({ ...j, type: 'journal', content: j.content, tags: j.tags || [], mood: j.mood || '' })),
+    ...(problemSolutions || []).map(p => ({ ...p, type: 'problem_solution', content: p.title, tags: p.tags || [], occurrence_location: p.occurrence_location || '' }))
   ];
-
-  const handlePillClick = (type: FilterType, value: string) => {
-    if (activeFilter?.type === type && activeFilter?.value === value) {
-      setActiveFilter(null); // Deselect if already active
-    } else {
-      setActiveFilter({ type, value });
-    }
-  };
 
   const getFilteredAndGroupedEntries = (entriesToFilter: any[]) => {
     let filtered = entriesToFilter;
 
-    if (activeFilter) {
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter(entry => selectedTypes.includes(entry.type));
+    }
+
+    if (selectedTags.length > 0) {
       filtered = filtered.filter(entry => {
-        if (activeFilter.type === 'tag' && entry.tags?.includes(activeFilter.value)) return true;
-        if (activeFilter.type === 'location' && (entry as Entry).location === activeFilter.value) return true;
-        if (activeFilter.type === 'mood' && (entry as JournalEntry).mood === activeFilter.value) return true;
-        if (activeFilter.type === 'occurrence_location' && (entry as ProblemSolution).occurrence_location === activeFilter.value) return true;
-        if (activeFilter.type === 'type' && entry.type === activeFilter.value) return true; // Filter by type
-        return false;
+        const entryAttributes = [
+          ...(entry.tags || []),
+          (entry as any).location,
+          (entry as any).mood,
+          (entry as any).occurrence_location,
+        ].filter(Boolean);
+        return entryAttributes.some(attr => selectedTags.includes(attr));
       });
     }
+
     return groupEntriesByDate(filtered);
   };
 
   const groupedFilteredEntries = getFilteredAndGroupedEntries(allCombinedEntries);
 
-  // Collect all unique filter values for display
-  const allUniqueTags = Array.from(new Set(allCombinedEntries.flatMap(entry => entry.tags || []).filter(tag => tag !== '')));
-  const allUniqueLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as Entry).location).map(e => (e as Entry).location!)));
-  const allUniqueMoods = Array.from(new Set(allCombinedEntries.filter(e => (e as JournalEntry).mood).map(e => (e as JournalEntry).mood!)));
-  const allUniqueOccurrenceLocations = Array.from(new Set(allCombinedEntries.filter(e => (e as ProblemSolution).occurrence_location).map(e => (e as ProblemSolution).occurrence_location!)));
-  const allUniqueTypes = Array.from(new Set(allCombinedEntries.map(entry => entry.type))).sort(); // Sort types alphabetically
+  const typeOptions: OptionType[] = Array.from(new Set(allCombinedEntries.map(entry => entry.type)))
+    .sort()
+    .map(type => ({
+      value: type,
+      label: type.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()),
+    }));
 
-  const renderFilterPills = () => {
-    const typePills: { type: FilterType, value: string }[] = [];
-    allUniqueTypes.forEach(type => typePills.push({ type: 'type', value: type }));
+  const allTagsAndAttributes = allCombinedEntries.flatMap(entry => [
+    ...(entry.tags || []),
+    (entry as any).location,
+    (entry as any).mood,
+    (entry as any).occurrence_location,
+  ]).filter(Boolean);
 
-    const otherPills: { type: FilterType, value: string }[] = [];
-    allUniqueTags.forEach(tag => otherPills.push({ type: 'tag', value: tag }));
-    allUniqueLocations.forEach(loc => otherPills.push({ type: 'location', value: loc }));
-    allUniqueMoods.forEach(mood => otherPills.push({ type: 'mood', value: mood }));
-    allUniqueOccurrenceLocations.forEach(occLoc => otherPills.push({ type: 'occurrence_location', value: occLoc }));
-
-    return (
-      <div className="mb-8 space-y-6">
-        <div>
-          <h4 className="text-sm font-medium text-muted-foreground mb-3">Filter by Type</h4>
-          <div className="flex flex-wrap gap-2">
-            <Badge
-              variant={activeFilter === null ? "default" : "outline"}
-              className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
-              onClick={() => setActiveFilter(null)}
-            >
-              All Content
-            </Badge>
-            {typePills.map((pill, index) => (
-              <Badge
-                key={`${pill.type}-${pill.value}-${index}`}
-                variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
-                  "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
-                )}
-                onClick={() => handlePillClick(pill.type, pill.value)}
-              >
-                {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {otherPills.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Filter by Tag</h4>
-            <div className="flex flex-wrap gap-2">
-              {otherPills.map((pill, index) => (
-                <Badge
-                  key={`${pill.type}-${pill.value}-${index}`}
-                  variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90"
-                  )}
-                  onClick={() => handlePillClick(pill.type, pill.value)}
-                >
-                  {pill.value}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const tagOptions: OptionType[] = Array.from(new Set(allTagsAndAttributes))
+    .sort()
+    .map(tag => ({ value: tag, label: tag }));
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -587,7 +532,28 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
-        {renderFilterPills()}
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Type</Label>
+            <MultiSelectDropdown
+              options={typeOptions}
+              selected={selectedTypes}
+              onChange={setSelectedTypes}
+              placeholder="Select types..."
+              maxDisplay={100} // Show all selected types
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Tag</Label>
+            <MultiSelectDropdown
+              options={tagOptions}
+              selected={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Select tags, locations, etc..."
+              maxDisplay={2} // Show 2 chips then a "+N more" badge
+            />
+          </div>
+        </div>
 
         {Object.keys(groupedFilteredEntries).length === 0 ? (
           <div className="text-center text-muted-foreground mt-12 p-8 border border-dashed border-border rounded-xl bg-muted/20">
@@ -601,106 +567,36 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               <div key={date}>
                 <h3 className="text-xl font-semibold mb-6 pb-2 border-b border-border/50">{date}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {entriesOnDate.map((item, index) => {
+                  {entriesOnDate.map((item: any, index) => {
                     switch (item.type) {
                       case 'note':
                         return (
                           <AlertDialog key={item.id}>
-                            <NoteCard note={item as Entry} onDelete={() => deleteEntryMutation.mutate(item as Entry)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                            <AlertDialogContent className="rounded-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete this note.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item as Entry)} className="rounded-lg">
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
+                            <NoteCard note={item} onDelete={() => deleteEntryMutation.mutate(item)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={() => {}} index={index} />
                           </AlertDialog>
                         );
                       case 'screenshot':
                         return (
                           <AlertDialog key={item.id}>
-                            <ScreenshotCard screenshot={item as Entry} onDelete={() => deleteEntryMutation.mutate(item as Entry)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                            <AlertDialogContent className="rounded-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete this screenshot.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader> {/* Corrected closing tag */}
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item as Entry)} className="rounded-lg">
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
+                            <ScreenshotCard screenshot={item} onDelete={() => deleteEntryMutation.mutate(item)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={() => {}} index={index} />
                           </AlertDialog>
                         );
                       case 'decision':
                         return (
                           <AlertDialog key={item.id}>
-                            <DecisionCard decision={item as Decision} onDelete={() => deleteDecisionMutation.mutate(item.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={handlePillClick} index={index} />
-                            <AlertDialogContent className="rounded-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete this decision.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteDecisionMutation.mutate(item.id)} className="rounded-lg">
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
+                            <DecisionCard decision={item} onDelete={() => deleteDecisionMutation.mutate(item.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={() => {}} index={index} />
                           </AlertDialog>
                         );
                       case 'journal':
                         return (
                           <AlertDialog key={item.id}>
-                            <JournalEntryCard journalEntry={item as JournalEntry} onDelete={() => deleteJournalEntryMutation.mutate(item.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                            <AlertDialogContent className="rounded-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete this journal entry.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteJournalEntryMutation.mutate(item.id)} className="rounded-lg">
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
+                            <JournalEntryCard journalEntry={item} onDelete={() => deleteJournalEntryMutation.mutate(item.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={() => {}} index={index} />
                           </AlertDialog>
                         );
                       case 'problem_solution':
                         return (
                           <AlertDialog key={item.id}>
-                            <ProblemSolutionCard problemSolution={item as ProblemSolution} onDelete={() => deleteProblemSolutionMutation.mutate(item.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={handlePillClick} index={index} />
-                            <AlertDialogContent className="rounded-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete this problem/solution entry.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteProblemSolutionMutation.mutate(item.id)} className="rounded-lg">
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
+                            <ProblemSolutionCard problemSolution={item} onDelete={() => deleteProblemSolutionMutation.mutate(item.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={() => {}} index={index} />
                           </AlertDialog>
                         );
                       default:
@@ -713,55 +609,19 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </div>
         )}
       </div>
-      {/* Add Dialogs */}
-      <Fragment> {/* Wrap multiple top-level JSX elements */}
+      {/* Add & Edit Dialogs */}
+      <Fragment>
         <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />
         <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
-        <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, createdAt })} />
+        <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, rationale: '', tags: [], createdAt })} />
         <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
         <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} />
         
-        {/* Edit Dialogs */}
-        {editingNote && (
-          <EditNoteDialog 
-            open={isEditNoteDialogOpen} 
-            onOpenChange={setIsEditNoteDialogOpen} 
-            initialData={editingNote} 
-            onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} 
-          />
-        )}
-        {editingScreenshot && (
-          <EditScreenshotDialog 
-            open={isEditScreenshotDialogOpen} 
-            onOpenChange={setIsEditScreenshotDialogOpen} 
-            initialData={editingScreenshot} 
-            onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} 
-          />
-        )}
-        {editingDecision && (
-          <EditDecisionWizardDialog 
-            open={isEditDecisionWizardOpen} 
-            onOpenChange={setIsEditDecisionWizardOpen} 
-            initialData={editingDecision} 
-            onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at: created_at })} 
-          />
-        )}
-        {editingJournalEntry && (
-          <EditJournalEntryDialog 
-            open={isEditJournalEntryDialogOpen} 
-            onOpenChange={setIsEditJournalEntryDialogOpen} 
-            initialData={editingJournalEntry} 
-            onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at: created_at })} 
-          />
-        )}
-        {editingProblemSolution && (
-          <EditProblemSolutionDialog 
-            open={isEditProblemSolutionDialogOpen} 
-            onOpenChange={setIsEditProblemSolutionDialogOpen} 
-            initialData={editingProblemSolution} 
-            onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at: created_at })} 
-          />
-        )}
+        {editingNote && <EditNoteDialog open={isEditNoteDialogOpen} onOpenChange={setIsEditNoteDialogOpen} initialData={editingNote} onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} />}
+        {editingScreenshot && <EditScreenshotDialog open={isEditScreenshotDialogOpen} onOpenChange={setIsEditScreenshotDialogOpen} initialData={editingScreenshot} onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} />}
+        {editingDecision && <EditDecisionWizardDialog open={isEditDecisionWizardOpen} onOpenChange={setIsEditDecisionWizardOpen} initialData={editingDecision} onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at })} />}
+        {editingJournalEntry && <EditJournalEntryDialog open={isEditJournalEntryDialogOpen} onOpenChange={setIsEditJournalEntryDialogOpen} initialData={editingJournalEntry} onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at })} />}
+        {editingProblemSolution && <EditProblemSolutionDialog open={isEditProblemSolutionDialogOpen} onOpenChange={setIsEditProblemSolutionDialogOpen} initialData={editingProblemSolution} onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at })} />}
       </Fragment>
     </div>
   );

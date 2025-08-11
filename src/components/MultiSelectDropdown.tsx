@@ -104,7 +104,7 @@ export function MultiSelectDropdown({
                         : [...selected, option.value]
                     );
                   }}
-                  className="cursor-pointer hover:!bg-muted/50"
+                  className="cursor-pointer hover:!bg-neutral-hover"
                 >
                   <Check
                     className={cn(

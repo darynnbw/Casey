@@ -52,7 +52,7 @@ export function MultiSelectDropdown({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between h-auto min-h-[40px] rounded-lg bg-card hover:bg-accent/50", className)}
+          className={cn("w-full justify-between h-auto min-h-[40px] rounded-lg hover:bg-muted", className)}
           onClick={() => setOpen(!open)}
         >
           <div className="flex flex-wrap items-center gap-1">

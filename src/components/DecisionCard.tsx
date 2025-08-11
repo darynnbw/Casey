@@ -9,11 +9,10 @@ interface DecisionCardProps {
   decision: Decision;
   onDelete: (decisionId: string) => void;
   onEdit: (decision: Decision) => void;
-  onPillClick: (type: 'tag', value: string) => void; // Added onPillClick prop
   index: number; // For rotation styling
 }
 
-export function DecisionCard({ decision, onDelete, onEdit, onPillClick, index }: DecisionCardProps) {
+export function DecisionCard({ decision, onDelete, onEdit, index }: DecisionCardProps) {
   return (
     <div key={decision.id} className={cn(
       "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
@@ -66,8 +65,7 @@ export function DecisionCard({ decision, onDelete, onEdit, onPillClick, index }:
             <Badge 
               key={tagIndex} 
               variant="secondary" 
-              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out cursor-pointer hover:bg-secondary/80"
-              onClick={() => onPillClick('tag', tag)}
+              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out"
             >
               {tag}
             </Badge>

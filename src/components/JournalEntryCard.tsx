@@ -9,11 +9,10 @@ interface JournalEntryCardProps {
   journalEntry: JournalEntry;
   onDelete: (journalEntryId: string) => void;
   onEdit: (journalEntry: JournalEntry) => void;
-  onPillClick: (type: 'tag' | 'mood', value: string) => void; // Added onPillClick prop
   index: number; // For rotation styling
 }
 
-export function JournalEntryCard({ journalEntry, onDelete, onEdit, onPillClick, index }: JournalEntryCardProps) {
+export function JournalEntryCard({ journalEntry, onDelete, onEdit, index }: JournalEntryCardProps) {
   return (
     <div key={journalEntry.id} className={cn(
       "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
@@ -44,8 +43,7 @@ export function JournalEntryCard({ journalEntry, onDelete, onEdit, onPillClick, 
       {journalEntry.mood && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800 transition-colors duration-200 ease-in-out cursor-pointer hover:bg-purple-100/50 dark:hover:bg-purple-900/30"
-          onClick={() => onPillClick('mood', journalEntry.mood!)}
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800 transition-colors duration-200 ease-in-out"
         >
           Mood: {journalEntry.mood}
         </Badge>
@@ -56,8 +54,7 @@ export function JournalEntryCard({ journalEntry, onDelete, onEdit, onPillClick, 
             <Badge 
               key={tagIndex} 
               variant="secondary" 
-              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out cursor-pointer hover:bg-secondary/80"
-              onClick={() => onPillClick('tag', tag)}
+              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out"
             >
               {tag}
             </Badge>

@@ -9,7 +9,6 @@ interface NoteCardProps {
   note: Entry;
   onDelete: (note: Entry) => void;
   onEdit: (note: Entry) => void;
-  onPillClick: (type: 'tag' | 'location', value: string) => void; // Added onPillClick prop
   index: number; // For rotation styling
 }
 
@@ -17,7 +16,7 @@ const isUrl = (text: string) => {
   return text.startsWith('http://') || text.startsWith('https://');
 }
 
-export function NoteCard({ note, onDelete, onEdit, onPillClick, index }: NoteCardProps) {
+export function NoteCard({ note, onDelete, onEdit, index }: NoteCardProps) {
   return (
     <div key={note.id} className={cn(
       "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
@@ -48,8 +47,7 @@ export function NoteCard({ note, onDelete, onEdit, onPillClick, index }: NoteCar
       {note.location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 transition-colors duration-200 ease-in-out cursor-pointer hover:bg-blue-100/50 dark:hover:bg-blue-900/30"
-          onClick={() => onPillClick('location', note.location!)}
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 transition-colors duration-200 ease-in-out"
         >
           {isUrl(note.location) ? (
             <a href={note.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -73,8 +71,7 @@ export function NoteCard({ note, onDelete, onEdit, onPillClick, index }: NoteCar
             <Badge 
               key={tagIndex} 
               variant="secondary" 
-              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out cursor-pointer hover:bg-secondary/80"
-              onClick={() => onPillClick('tag', tag)}
+              className="rounded-full px-3 py-1 text-xs transition-colors duration-200 ease-in-out"
             >
               {tag}
             </Badge>

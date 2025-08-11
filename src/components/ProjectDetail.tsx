@@ -352,31 +352,33 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
         </div>
       </div>
       <div className="flex-grow overflow-y-auto p-8 bg-background">
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1 md:flex-none md:w-[240px]">
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Type</Label>
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Content</SelectItem>
-                {allUniqueTypes.map(type => (
-                  <SelectItem key={type} value={type}>
-                    {type.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex-1">
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Tags</Label>
-            <MultiSelect
-              options={combinedTagOptions}
-              selected={selectedTags}
-              onChange={setSelectedTags}
-              placeholder="Select tags..."
-            />
+        <div className="p-4 border rounded-xl bg-card mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Type</Label>
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Content</SelectItem>
+                  {allUniqueTypes.map(type => (
+                    <SelectItem key={type} value={type}>
+                      {type.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground mb-2 block">Filter by Tags</Label>
+              <MultiSelect
+                options={combinedTagOptions}
+                selected={selectedTags}
+                onChange={setSelectedTags}
+                placeholder="Select tags..."
+              />
+            </div>
           </div>
         </div>
 

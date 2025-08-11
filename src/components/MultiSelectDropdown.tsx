@@ -62,7 +62,7 @@ export function MultiSelectDropdown({
                   const option = options.find((opt) => opt.value === item);
                   return (
                     <Badge
-                      variant="default"
+                      variant="secondary"
                       key={item}
                       className="rounded-md"
                       onClick={(e) => {

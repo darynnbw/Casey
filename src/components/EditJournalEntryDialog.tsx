@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -24,20 +23,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { JournalEntry } from "@/types";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface EditJournalEntryDialogProps {
   initialData: JournalEntry | null;
-  onUpdateJournalEntry: (id: string, content: string, mood: string, tags: string[], created_at: string) => void; // Changed to created_at
+  onUpdateJournalEntry: (id: string, content: string, mood: string, tags: string[], created_at: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open, onOpenChange }: EditJournalEntryDialogProps) {
+export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open, onOpenChange, allTags }: EditJournalEntryDialogProps) {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState(initialData?.content || "");
   const [mood, setMood] = useState(initialData?.mood || "");
-  const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
   const [showMood, setShowMood] = useState(false);
@@ -50,18 +51,18 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
     if (initialData) {
       setContent(initialData.content || "");
       setMood(initialData.mood || "");
-      setTags(initialData.tags?.join(', ') || "");
+      setTags(initialData.tags || []);
       setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
       setShowMood(!!initialData.mood);
       setShowTags(!!initialData.tags && initialData.tags.length > 0);
-      setStep(1); // Reset step when new initialData is provided
+      setStep(1);
     }
   }, [initialData]);
 
   const resetForm = () => {
     setContent("");
     setMood("");
-    setTags("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowMood(false);
@@ -90,8 +91,7 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (initialData && content.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onUpdateJournalEntry(initialData.id, content.trim(), mood, tagArray, selectedDate.toISOString());
+      onUpdateJournalEntry(initialData.id, content.trim(), mood, tags, selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -100,7 +100,7 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pl-4 pr-8"> {/* Adjusted padding */}
+          <DialogHeader className="mb-6 pl-4 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Journal Entry: Content"}
@@ -123,7 +123,7 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
                   value={content}
                   onChange={setContent}
                   placeholder="What's on your mind today? What did you work on?"
-                  className="min-h-[150px]" // Added min-height for better UX
+                  className="min-h-[150px]"
                 />
               </div>
             )}
@@ -170,14 +170,12 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
                 {showTags && (
                   <div>
                     <Label htmlFor="journal-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="journal-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Meeting, Client Feedback, Brainstorm"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -220,10 +218,10 @@ export function EditJournalEntryDialog({ initialData, onUpdateJournalEntry, open
                     <p className="text-base text-muted-foreground">{mood || "N/A"}</p>
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 <div>

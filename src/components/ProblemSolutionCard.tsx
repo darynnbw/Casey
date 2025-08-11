@@ -20,7 +20,7 @@ export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemS
     )}>
       <div className="flex justify-between items-start">
         <p className="text-sm text-muted-foreground">{format(new Date(problemSolution.created_at), "h:mm a")}</p>
-        <div className="flex gap-1"> {/* Group buttons */}
+        <div className="flex gap-1">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -52,13 +52,13 @@ export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemS
       {problemSolution.problem_description && (
         <div>
           <p className="text-sm font-medium text-foreground">Problem:</p>
-          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.problem_description }} />
+          <div className="prose max-w-none text-lg leading-body text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.problem_description }} />
         </div>
       )}
       {problemSolution.solution && (
         <div>
           <p className="text-sm font-medium text-foreground">Solution:</p>
-          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.solution }} />
+          <div className="prose max-w-none text-lg leading-body text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.solution }} />
         </div>
       )}
       {problemSolution.tags && problemSolution.tags.length > 0 && (

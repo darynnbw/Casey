@@ -16,18 +16,20 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface AddNoteDialogProps {
   onAddNote: (content: string, tags: string[], location: string, createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogProps) {
+export function AddNoteDialog({ onAddNote, open, onOpenChange, allTags }: AddNoteDialogProps) {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
@@ -39,7 +41,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
 
   const resetForm = () => {
     setContent("");
-    setTags("");
+    setTags([]);
     setLocation("");
     setSelectedDate(new Date());
     setStep(1);
@@ -69,8 +71,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (content.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddNote(content.trim(), tagArray, location.trim(), selectedDate.toISOString());
+      onAddNote(content.trim(), tags, location.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -79,7 +80,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
+          <DialogHeader className="mb-6 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Add New Note: Content"}
@@ -101,7 +102,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
                   value={content}
                   onChange={setContent}
                   placeholder="Type your note here..."
-                  className="min-h-[150px]" // Added min-height for better UX
+                  className="min-h-[150px]"
                 />
               </div>
             )}
@@ -121,14 +122,12 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
                 {showTags && (
                   <div>
                     <Label htmlFor="note-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="note-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Problem, Solution, User-Feedback"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 {!showLocation && (
@@ -187,10 +186,10 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
                   <p className="text-sm font-medium text-foreground">Note Content:</p>
                   <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content || "N/A" }} />
                 </div>
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 {location && (

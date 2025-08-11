@@ -17,7 +17,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Decision } from "@/types";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface EditDecisionWizardDialogProps {
   initialData: Decision | null;
@@ -29,20 +30,21 @@ interface EditDecisionWizardDialogProps {
     alternatives: string,
     rationale: string,
     tags: string[],
-    created_at: string, // Changed to created_at
+    created_at: string,
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, onOpenChange }: EditDecisionWizardDialogProps) {
+export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, onOpenChange, allTags }: EditDecisionWizardDialogProps) {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState(initialData?.title || "");
   const [summary, setSummary] = useState(initialData?.summary || "");
-  const [context, setContext] = useState(initialData?.context || ""); // Problem/Context
+  const [context, setContext] = useState(initialData?.context || "");
   const [alternatives, setAlternatives] = useState(initialData?.alternatives || "");
-  const [rationale, setRationale] = useState(initialData?.rationale || ""); // Why this decision?
-  const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
+  const [rationale, setRationale] = useState(initialData?.rationale || "");
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
   const [showSummary, setShowSummary] = useState(false);
@@ -51,7 +53,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
   const [showRationale, setShowRationale] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 4; // Title/Summary -> Context/Alternatives -> Rationale/Tags -> Date -> Review
+  const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
 
   useEffect(() => {
@@ -61,14 +63,14 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
       setContext(initialData.context || "");
       setAlternatives(initialData.alternatives || "");
       setRationale(initialData.rationale || "");
-      setTags(initialData.tags?.join(', ') || "");
+      setTags(initialData.tags || []);
       setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
       setShowSummary(!!initialData.summary);
       setShowContext(!!initialData.context);
       setShowAlternatives(!!initialData.alternatives);
       setShowRationale(!!initialData.rationale);
       setShowTags(!!initialData.tags && initialData.tags.length > 0);
-      setStep(1); // Reset step when new initialData is provided
+      setStep(1);
     }
   }, [initialData]);
 
@@ -78,7 +80,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
     setContext("");
     setAlternatives("");
     setRationale("");
-    setTags("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowSummary(false);
@@ -110,7 +112,6 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (initialData && title.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onUpdateDecision(
         initialData.id,
         title.trim(),
@@ -118,7 +119,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
         context.trim(),
         alternatives.trim(),
         rationale.trim(),
-        tagArray,
+        tags,
         selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
@@ -129,7 +130,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pl-4 pr-8"> {/* Adjusted padding */}
+          <DialogHeader className="mb-6 pl-4 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Decision: Details"}
@@ -178,7 +179,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       value={summary}
                       onChange={setSummary}
                       placeholder="A brief overview of the decision."
-                      className="min-h-[100px]" // Added min-height for better UX
+                      className="min-h-[100px]"
                     />
                   </div>
                 )}
@@ -205,7 +206,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       value={context}
                       onChange={setContext}
                       placeholder="What problem or situation led to this decision?"
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -227,7 +228,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       value={alternatives}
                       onChange={setAlternatives}
                       placeholder="What other options were explored?"
-                      className="min-h-[100px]" // Added min-height for better UX
+                      className="min-h-[100px]"
                     />
                   </div>
                 )}
@@ -254,7 +255,7 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                       value={rationale}
                       onChange={setRationale}
                       placeholder="Explain the reasoning behind the chosen decision."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -271,14 +272,12 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                 {showTags && (
                   <div>
                     <Label htmlFor="decision-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="decision-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Navigation, Mobile, Accessibility"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -339,10 +338,10 @@ export function EditDecisionWizardDialog({ initialData, onUpdateDecision, open, 
                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: rationale || "N/A" }} />
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 <div>

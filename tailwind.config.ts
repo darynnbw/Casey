@@ -71,6 +71,9 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      lineHeight: {
+        'body': '25px',
+      },
       keyframes: {
         "accordion-down": {
           from: {

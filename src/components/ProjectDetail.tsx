@@ -307,7 +307,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   
     // Mutations for Decisions
     const addDecisionMutation = useMutation({
-      mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at'> & { createdAt: string }) => {
+      mutationFn: async (decisionData: Omit<Decision, 'id' | 'user_id' | 'project_id' | 'created_at' | 'rationale'> & { createdAt: string }) => {
         if (!session) throw new Error("User not authenticated");
         const { createdAt, ...rest } = decisionData;
         const { data, error } = await supabase
@@ -516,6 +516,8 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   const tagOptions: OptionType[] = Array.from(new Set(allTagsAndAttributes))
     .sort()
     .map(tag => ({ value: tag, label: tag }));
+    
+  const allUniqueTags = Array.from(new Set(allCombinedEntries.flatMap(entry => entry.tags || [])));
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -671,17 +673,17 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
       </div>
       {/* Add & Edit Dialogs */}
       <Fragment>
-        <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} />
-        <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} />
-        <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, rationale: '', tags: [], createdAt })} />
-        <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} />
-        <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} />
+        <AddNoteDialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen} onAddNote={(content, tags, location, createdAt) => addNoteMutation.mutate({ content, tags, location, createdAt })} allTags={allUniqueTags} />
+        <AddScreenshotDialog open={isScreenshotDialogOpen} onOpenChange={setIsScreenshotDialogOpen} onAddScreenshot={(file, caption, tags, location, createdAt) => addScreenshotMutation.mutate({ file, caption, tags, location, createdAt })} allTags={allUniqueTags} />
+        <AddDecisionWizardDialog open={isDecisionWizardOpen} onOpenChange={setIsDecisionWizardOpen} onAddDecision={(title, summary, context, alternatives, tags, createdAt) => addDecisionMutation.mutate({ title, summary, context, alternatives, tags, createdAt })} allTags={allUniqueTags} />
+        <AddJournalEntryDialog open={isJournalEntryDialogOpen} onOpenChange={setIsJournalEntryDialogOpen} onAddJournalEntry={(content, mood, tags, createdAt) => addJournalEntryMutation.mutate({ content, mood, tags, createdAt })} allTags={allUniqueTags} />
+        <AddProblemSolutionDialog open={isProblemSolutionDialogOpen} onOpenChange={setIsProblemSolutionDialogOpen} onAddProblemSolution={(title, problem_description, occurrence_location, solution, tags, createdAt) => addProblemSolutionMutation.mutate({ title, problem_description, occurrence_location, solution, tags, createdAt })} allTags={allUniqueTags} />
         
-        {editingNote && <EditNoteDialog open={isEditNoteDialogOpen} onOpenChange={setIsEditNoteDialogOpen} initialData={editingNote} onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} />}
-        {editingScreenshot && <EditScreenshotDialog open={isEditScreenshotDialogOpen} onOpenChange={setIsEditScreenshotDialogOpen} initialData={editingScreenshot} onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} />}
-        {editingDecision && <EditDecisionWizardDialog open={isEditDecisionWizardOpen} onOpenChange={setIsEditDecisionWizardOpen} initialData={editingDecision} onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at })} />}
-        {editingJournalEntry && <EditJournalEntryDialog open={isEditJournalEntryDialogOpen} onOpenChange={setIsEditJournalEntryDialogOpen} initialData={editingJournalEntry} onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at })} />}
-        {editingProblemSolution && <EditProblemSolutionDialog open={isEditProblemSolutionDialogOpen} onOpenChange={setIsEditProblemSolutionDialogOpen} initialData={editingProblemSolution} onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at })} />}
+        {editingNote && <EditNoteDialog open={isEditNoteDialogOpen} onOpenChange={setIsEditNoteDialogOpen} initialData={editingNote} onUpdateNote={(id, content, tags, location, createdAt) => updateNoteMutation.mutate({ id, content, tags, location, createdAt })} allTags={allUniqueTags} />}
+        {editingScreenshot && <EditScreenshotDialog open={isEditScreenshotDialogOpen} onOpenChange={setIsEditScreenshotDialogOpen} initialData={editingScreenshot} onUpdateScreenshot={(id, file, caption, tags, location, createdAt) => updateScreenshotMutation.mutate({ id, file, caption, tags, location, createdAt, oldFileUrl: editingScreenshot.file_url })} allTags={allUniqueTags} />}
+        {editingDecision && <EditDecisionWizardDialog open={isEditDecisionWizardOpen} onOpenChange={setIsEditDecisionWizardOpen} initialData={editingDecision} onUpdateDecision={(id, title, summary, context, alternatives, rationale, tags, created_at) => updateDecisionMutation.mutate({ id, title, summary, context, alternatives, rationale, tags, created_at })} allTags={allUniqueTags} />}
+        {editingJournalEntry && <EditJournalEntryDialog open={isEditJournalEntryDialogOpen} onOpenChange={setIsEditJournalEntryDialogOpen} initialData={editingJournalEntry} onUpdateJournalEntry={(id, content, mood, tags, created_at) => updateJournalEntryMutation.mutate({ id, content, mood, tags, created_at })} allTags={allUniqueTags} />}
+        {editingProblemSolution && <EditProblemSolutionDialog open={isEditProblemSolutionDialogOpen} onOpenChange={setIsEditProblemSolutionDialogOpen} initialData={editingProblemSolution} onUpdateProblemSolution={(id, title, problem_description, occurrence_location, solution, tags, created_at) => updateProblemSolutionMutation.mutate({ id, title, problem_description, occurrence_location, solution, tags, created_at })} allTags={allUniqueTags} />}
       </Fragment>
     </div>
   );

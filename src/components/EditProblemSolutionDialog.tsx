@@ -17,7 +17,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ProblemSolution } from "@/types";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface EditProblemSolutionDialogProps {
   initialData: ProblemSolution | null;
@@ -32,15 +33,16 @@ interface EditProblemSolutionDialogProps {
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution, open, onOpenChange }: EditProblemSolutionDialogProps) {
+export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution, open, onOpenChange, allTags }: EditProblemSolutionDialogProps) {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState(initialData?.title || "");
   const [problem_description, setProblemDescription] = useState(initialData?.problem_description || "");
   const [occurrence_location, setOccurrenceLocation] = useState(initialData?.occurrence_location || "");
   const [solution, setSolution] = useState(initialData?.solution || "");
-  const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
@@ -48,7 +50,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
   const [showSolution, setShowSolution] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review
+  const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
 
   useEffect(() => {
@@ -57,13 +59,13 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
       setProblemDescription(initialData.problem_description || "");
       setOccurrenceLocation(initialData.occurrence_location || "");
       setSolution(initialData.solution || "");
-      setTags(initialData.tags?.join(', ') || "");
+      setTags(initialData.tags || []);
       setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
       setShowProblemDescription(!!initialData.problem_description);
       setShowOccurrenceLocation(!!initialData.occurrence_location);
       setShowSolution(!!initialData.solution);
       setShowTags(!!initialData.tags && initialData.tags.length > 0);
-      setStep(1); // Reset step when new initialData is provided
+      setStep(1);
     }
   }, [initialData]);
 
@@ -72,7 +74,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
     setProblemDescription("");
     setOccurrenceLocation("");
     setSolution("");
-    setTags("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
@@ -103,14 +105,13 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (initialData && title.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onUpdateProblemSolution(
         initialData.id,
         title.trim(),
         problem_description.trim(),
         occurrence_location.trim(),
         solution.trim(),
-        tagArray,
+        tags,
         selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
@@ -121,7 +122,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pl-4 pr-8"> {/* Adjusted padding */}
+          <DialogHeader className="mb-6 pl-4 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Problem & Solution: Problem Details"}
@@ -168,7 +169,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       value={problem_description}
                       onChange={setProblemDescription}
                       placeholder="Describe the problem in detail."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -217,7 +218,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                       value={solution}
                       onChange={setSolution}
                       placeholder="Describe the implemented solution."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -239,14 +240,12 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                 {showTags && (
                   <div>
                     <Label htmlFor="problem-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="problem-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Bug, Usability, Performance"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -301,10 +300,10 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: solution || "N/A" }} />
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 <div>

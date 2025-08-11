@@ -16,31 +16,36 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface AddDecisionWizardDialogProps {
   onAddDecision: (
     title: string,
     summary: string,
-    context: string, // This will be the rationale from the wizard
+    context: string,
     alternatives: string,
+    tags: string[],
     createdAt: string,
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: AddDecisionWizardDialogProps) {
+export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange, allTags }: AddDecisionWizardDialogProps) {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [rationale, setRationale] = useState(""); // "Why this decision?"
   const [alternatives, setAlternatives] = useState(""); // "Alternatives Explored"
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showSummary, setShowSummary] = useState(false);
   const [showRationale, setShowRationale] = useState(false);
   const [showAlternatives, setShowAlternatives] = useState(false);
+  const [showTags, setShowTags] = useState(false);
 
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
@@ -50,15 +55,17 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
     setSummary("");
     setRationale("");
     setAlternatives("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowSummary(false);
     setShowRationale(false);
     setShowAlternatives(false);
+    setShowTags(false);
   };
 
   const handleOpenChangeInternal = (isOpen: boolean) => {
-    onOpenChange(isOpen); // Propagate change to parent
+    onOpenChange(isOpen);
     if (!isOpen) {
       resetForm();
     }
@@ -79,33 +86,30 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && selectedDate) {
-      // The wizard's 'rationale' is mapped to 'context' in the Decision type.
-      // The Decision type's 'rationale' field is left unused by this wizard.
-      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim(), selectedDate.toISOString());
-      handleOpenChangeInternal(false); // Close dialog and reset form
+      onAddDecision(title.trim(), summary.trim(), rationale.trim(), alternatives.trim(), tags, selectedDate.toISOString());
+      handleOpenChangeInternal(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
-      {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
-      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
+      <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
+          <DialogHeader className="mb-6 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
-            <DialogTitle className="text-xl font-semibold"> {/* Smaller font, lighter weight */}
+            <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log New Decision: Details"}
               {step === 2 && "Log New Decision: Context"}
               {step === 3 && "Review & Submit Decision"}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground font-normal"> {/* Lighter font weight */}
+            <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Provide the main details for your decision."}
               {step === 2 && "Explain the reasoning and alternatives considered, and set the date."}
               {step === 3 && "Review your decision before saving."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6 py-4"> {/* Increased gap and vertical padding */}
+          <div className="grid gap-6 py-4">
             {step === 1 && (
               <>
                 <div>
@@ -117,7 +121,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                     placeholder="e.g., Chose sticky header for navigation"
                     autoFocus
                     required
-                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // Subtler border, reduced radius
+                    className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
                 {!showSummary && (
@@ -138,7 +142,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                       value={summary}
                       onChange={setSummary}
                       placeholder="A brief overview of the decision."
-                      className="min-h-[100px]" // Added min-height for better UX
+                      className="min-h-[100px]"
                     />
                   </div>
                 )}
@@ -165,7 +169,7 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                       value={rationale}
                       onChange={setRationale}
                       placeholder="Explain the reasoning behind the chosen decision."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -187,7 +191,28 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                       value={alternatives}
                       onChange={setAlternatives}
                       placeholder="What other options were explored?"
-                      className="min-h-[100px]" // Added min-height for better UX
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                )}
+                {!showTags && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowTags(true)}
+                    className="text-primary justify-start px-0 h-auto text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Add tags
+                  </Button>
+                )}
+                {showTags && (
+                  <div>
+                    <Label htmlFor="decision-tags" className="text-base mb-2 block">Tags (optional)</Label>
+                    <TagInput
+                      value={tags}
+                      onChange={setTags}
+                      allTags={allTags}
+                      placeholder="e.g., Navigation, Mobile, Accessibility"
                     />
                   </div>
                 )}
@@ -243,6 +268,12 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: alternatives || "N/A" }} />
                   </div>
                 )}
+                {tags.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Tags:</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-medium text-foreground">Date:</p>
                   <p className="text-base text-muted-foreground">{selectedDate ? format(selectedDate, "PPP") : "N/A"}</p>
@@ -251,13 +282,13 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
             )}
           </div>
 
-          <DialogFooter className="flex justify-between items-center pt-6"> {/* Increased padding-top */}
+          <DialogFooter className="flex justify-between items-center pt-6">
             {step > 1 && (
               <Button type="button" variant="outline" onClick={handleBack} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Back
               </Button>
             )}
-            <div className="flex-grow" /> {/* Spacer */}
+            <div className="flex-grow" />
             {step < totalSteps ? (
               <Button type="button" onClick={handleNext} className="rounded-lg px-4 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 Next

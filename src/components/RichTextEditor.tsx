@@ -26,7 +26,7 @@ const formats = [
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onChange, placeholder, className }) => {
   return (
     <div className={cn(
-      "rounded-lg border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:border-primary transition-colors overflow-hidden",
+      "rounded-lg border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:border-primary transition-colors overflow-hidden font-sans",
       className
     )}>
       <ReactQuill

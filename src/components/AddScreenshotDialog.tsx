@@ -17,17 +17,19 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { TagInput } from "./TagInput";
 
 interface AddScreenshotDialogProps {
   onAddScreenshot: (file: File, caption: string, tags: string[], location: string, createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: AddScreenshotDialogProps) {
+export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange, allTags }: AddScreenshotDialogProps) {
   const [step, setStep] = useState(1);
   const [caption, setCaption] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
 
   const resetForm = () => {
     setCaption("");
-    setTags("");
+    setTags([]);
     setLocation("");
     setFile(null);
     setPreview(null);
@@ -92,8 +94,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (file && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddScreenshot(file, caption.trim(), tagArray, location.trim(), selectedDate.toISOString());
+      onAddScreenshot(file, caption.trim(), tags, location.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -102,7 +103,7 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
+          <DialogHeader className="mb-6 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Add Screenshot: Image & Caption"}
@@ -165,14 +166,12 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
                 {showTags && (
                   <div>
                     <Label htmlFor="screenshot-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="screenshot-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Wireframe, Mockup, Result"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 {!showLocation && (
@@ -239,10 +238,10 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
                     <p className="text-base text-muted-foreground whitespace-pre-wrap">{caption || "N/A"}</p>
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 {location && (

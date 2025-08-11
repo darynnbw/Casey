@@ -24,7 +24,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
     )}>
       <div className="flex justify-between items-start">
         <p className="text-sm text-muted-foreground">{format(new Date(note.created_at), "h:mm a")}</p>
-        <div className="flex gap-1"> {/* Group buttons */}
+        <div className="flex gap-1">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -64,7 +64,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
         </Badge>
       )}
 
-      <div className="prose max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
+      <div className="prose max-w-none text-lg leading-body text-muted-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
 
       {note.tags && note.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">

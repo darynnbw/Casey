@@ -108,7 +108,7 @@
 }
 
 .ql-editor {
-  @apply text-base;
+  @apply text-base font-sans;
   min-height: 120px;
 }
 

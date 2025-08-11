@@ -16,36 +16,38 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface AddProblemSolutionDialogProps {
   onAddProblemSolution: (
     title: string,
     problem_description: string,
     occurrence_location: string,
-    solution: string, // Merged field
+    solution: string,
     tags: string[],
     createdAt: string
   ) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenChange }: AddProblemSolutionDialogProps) {
+export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenChange, allTags }: AddProblemSolutionDialogProps) {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState("");
   const [problem_description, setProblemDescription] = useState("");
   const [occurrence_location, setOccurrenceLocation] = useState("");
-  const [solution, setSolution] = useState(""); // New merged state
-  const [tags, setTags] = useState("");
+  const [solution, setSolution] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showProblemDescription, setShowProblemDescription] = useState(false);
   const [showOccurrenceLocation, setShowOccurrenceLocation] = useState(false);
-  const [showSolution, setShowSolution] = useState(false); // New state for solution
+  const [showSolution, setShowSolution] = useState(false);
   const [showTags, setShowTags] = useState(false);
 
-  const totalSteps = 3; // Title/Desc -> Location/Solution -> Tags/Date -> Review
+  const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
 
   const resetForm = () => {
@@ -53,7 +55,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     setProblemDescription("");
     setOccurrenceLocation("");
     setSolution("");
-    setTags("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowProblemDescription(false);
@@ -84,13 +86,12 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
       onAddProblemSolution(
         title.trim(),
         problem_description.trim(),
         occurrence_location.trim(),
-        solution.trim(), // Pass the new merged solution
-        tagArray,
+        solution.trim(),
+        tags,
         selectedDate.toISOString()
       );
       handleOpenChangeInternal(false);
@@ -101,7 +102,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
+          <DialogHeader className="mb-6 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}
@@ -148,7 +149,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                       value={problem_description}
                       onChange={setProblemDescription}
                       placeholder="Describe the problem in detail."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -197,7 +198,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                       value={solution}
                       onChange={setSolution}
                       placeholder="Describe the implemented solution."
-                      className="min-h-[150px]" // Added min-height for better UX
+                      className="min-h-[150px]"
                     />
                   </div>
                 )}
@@ -219,14 +220,12 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                 {showTags && (
                   <div>
                     <Label htmlFor="problem-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="problem-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Bug, Usability, Performance"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -275,16 +274,16 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
                     <p className="text-base text-muted-foreground">{occurrence_location || "N/A"}</p>
                   </div>
                 )}
-                {solution && ( // Display the new merged solution
+                {solution && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Solution:</p>
                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: solution || "N/A" }} />
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 <div>

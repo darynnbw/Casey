@@ -17,19 +17,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Entry } from "@/types";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface EditNoteDialogProps {
   initialData: Entry | null;
   onUpdateNote: (id: string, content: string, tags: string[], location: string, createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }: EditNoteDialogProps) {
+export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange, allTags }: EditNoteDialogProps) {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState(initialData?.content || "");
-  const [tags, setTags] = useState(initialData?.tags?.join(', ') || "");
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [location, setLocation] = useState(initialData?.location || "");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialData?.created_at ? new Date(initialData.created_at) : new Date());
 
@@ -42,18 +44,18 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
   useEffect(() => {
     if (initialData) {
       setContent(initialData.content || "");
-      setTags(initialData.tags?.join(', ') || "");
+      setTags(initialData.tags || []);
       setLocation(initialData.location || "");
       setSelectedDate(initialData.created_at ? new Date(initialData.created_at) : new Date());
       setShowTags(!!initialData.tags && initialData.tags.length > 0);
       setShowLocation(!!initialData.location);
-      setStep(1); // Reset step when new initialData is provided
+      setStep(1);
     }
   }, [initialData]);
 
   const resetForm = () => {
     setContent("");
-    setTags("");
+    setTags([]);
     setLocation("");
     setSelectedDate(new Date());
     setStep(1);
@@ -83,8 +85,7 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (initialData && content.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onUpdateNote(initialData.id, content.trim(), tagArray, location.trim(), selectedDate.toISOString());
+      onUpdateNote(initialData.id, content.trim(), tags, location.trim(), selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -93,7 +94,7 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pl-4 pr-8"> {/* Adjusted padding */}
+          <DialogHeader className="mb-6 pl-4 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Note: Content"}
@@ -115,7 +116,7 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
                   value={content}
                   onChange={setContent}
                   placeholder="Type your note here..."
-                  className="min-h-[150px]" // Added min-height for better UX
+                  className="min-h-[150px]"
                 />
               </div>
             )}
@@ -135,14 +136,12 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
                 {showTags && (
                   <div>
                     <Label htmlFor="note-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="note-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Problem, Solution, User-Feedback"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 {!showLocation && (
@@ -201,10 +200,10 @@ export function EditNoteDialog({ initialData, onUpdateNote, open, onOpenChange }
                   <p className="text-sm font-medium text-foreground">Note Content:</p>
                   <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content || "N/A" }} />
                 </div>
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 {location && (

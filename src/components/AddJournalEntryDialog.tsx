@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -23,19 +22,21 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { RichTextEditor } from "./RichTextEditor"; // Import the new component
+import { RichTextEditor } from "./RichTextEditor";
+import { TagInput } from "./TagInput";
 
 interface AddJournalEntryDialogProps {
   onAddJournalEntry: (content: string, mood: string, tags: string[], createdAt: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allTags: string[];
 }
 
-export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }: AddJournalEntryDialogProps) {
+export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange, allTags }: AddJournalEntryDialogProps) {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [showMood, setShowMood] = useState(false);
@@ -47,7 +48,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
   const resetForm = () => {
     setContent("");
     setMood("");
-    setTags("");
+    setTags([]);
     setSelectedDate(new Date());
     setStep(1);
     setShowMood(false);
@@ -76,8 +77,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (content.trim() && selectedDate) {
-      const tagArray = tags.split(',').map(t => t.trim()).filter(t => t);
-      onAddJournalEntry(content.trim(), mood, tagArray, selectedDate.toISOString());
+      onAddJournalEntry(content.trim(), mood, tags, selectedDate.toISOString());
       handleOpenChangeInternal(false);
     }
   };
@@ -86,7 +86,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 pr-8"> {/* Added pr-8 */}
+          <DialogHeader className="mb-6 pr-8">
             <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "New Journal Entry: Content"}
@@ -108,7 +108,7 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                   value={content}
                   onChange={setContent}
                   placeholder="What's on your mind today? What did you work on?"
-                  className="min-h-[150px]" // Added min-height for better UX
+                  className="min-h-[150px]"
                 />
               </div>
             )}
@@ -155,14 +155,12 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                 {showTags && (
                   <div>
                     <Label htmlFor="journal-tags" className="text-base mb-2 block">Tags (optional)</Label>
-                    <Input
-                      id="journal-tags"
+                    <TagInput
                       value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      onChange={setTags}
+                      allTags={allTags}
                       placeholder="e.g., Meeting, Client Feedback, Brainstorm"
-                      className="rounded-md px-3 py-2 border border-input/70 focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">Separate tags with a comma.</p>
                   </div>
                 )}
                 <div>
@@ -205,10 +203,10 @@ export function AddJournalEntryDialog({ onAddJournalEntry, open, onOpenChange }:
                     <p className="text-base text-muted-foreground">{mood || "N/A"}</p>
                   </div>
                 )}
-                {tags && (
+                {tags.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-foreground">Tags:</p>
-                    <p className="text-base text-muted-foreground">{tags || "N/A"}</p>
+                    <p className="text-base text-muted-foreground">{tags.join(', ')}</p>
                   </div>
                 )}
                 <div>

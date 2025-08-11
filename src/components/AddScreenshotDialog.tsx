@@ -102,7 +102,8 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-4 text-center">
+          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
+            <Progress value={progress} className="w-full h-2 mb-4" />
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Add Screenshot: Image & Caption"}
               {step === 2 && "Add Screenshot: Details"}
@@ -114,8 +115,6 @@ export function AddScreenshotDialog({ onAddScreenshot, open, onOpenChange }: Add
               {step === 3 && "Review your screenshot details before saving."}
             </DialogDescription>
           </DialogHeader>
-
-          <Progress value={progress} className="w-full h-2 mb-6" />
 
           <div className="grid gap-6 py-4">
             {step === 1 && (

@@ -572,31 +572,91 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                       case 'note':
                         return (
                           <AlertDialog key={item.id}>
-                            <NoteCard note={item} onDelete={() => deleteEntryMutation.mutate(item)} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} onPillClick={() => {}} index={index} />
+                            <NoteCard note={item} onEdit={(note) => { setEditingNote(note); setIsEditNoteDialogOpen(true); }} index={index} />
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this note.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
                           </AlertDialog>
                         );
                       case 'screenshot':
                         return (
                           <AlertDialog key={item.id}>
-                            <ScreenshotCard screenshot={item} onDelete={() => deleteEntryMutation.mutate(item)} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} onPillClick={() => {}} index={index} />
+                            <ScreenshotCard screenshot={item} onEdit={(screenshot) => { setEditingScreenshot(screenshot); setIsEditScreenshotDialogOpen(true); }} index={index} />
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this screenshot.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteEntryMutation.mutate(item)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
                           </AlertDialog>
                         );
                       case 'decision':
                         return (
                           <AlertDialog key={item.id}>
-                            <DecisionCard decision={item} onDelete={() => deleteDecisionMutation.mutate(item.id)} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} onPillClick={() => {}} index={index} />
+                            <DecisionCard decision={item} onEdit={(decision) => { setEditingDecision(decision); setIsEditDecisionWizardOpen(true); }} index={index} />
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this decision.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteDecisionMutation.mutate(item.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
                           </AlertDialog>
                         );
                       case 'journal':
                         return (
                           <AlertDialog key={item.id}>
-                            <JournalEntryCard journalEntry={item} onDelete={() => deleteJournalEntryMutation.mutate(item.id)} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} onPillClick={() => {}} index={index} />
+                            <JournalEntryCard journalEntry={item} onEdit={(journalEntry) => { setEditingJournalEntry(journalEntry); setIsEditJournalEntryDialogOpen(true); }} index={index} />
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this journal entry.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteJournalEntryMutation.mutate(item.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
                           </AlertDialog>
                         );
                       case 'problem_solution':
                         return (
                           <AlertDialog key={item.id}>
-                            <ProblemSolutionCard problemSolution={item} onDelete={() => deleteProblemSolutionMutation.mutate(item.id)} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} onPillClick={() => {}} index={index} />
+                            <ProblemSolutionCard problemSolution={item} onEdit={(problemSolution) => { setEditingProblemSolution(problemSolution); setIsEditProblemSolutionDialogOpen(true); }} index={index} />
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this problem/solution.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteProblemSolutionMutation.mutate(item.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
                           </AlertDialog>
                         );
                       default:

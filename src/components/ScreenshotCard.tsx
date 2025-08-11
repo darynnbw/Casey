@@ -66,7 +66,7 @@ export function ScreenshotCard({ screenshot, onEdit, index }: ScreenshotCardProp
 
       <div className="space-y-3">
         <img src={screenshot.file_url} alt={screenshot.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-muted shadow-sm" loading="lazy" />
-        {screenshot.content && <div className="prose max-w-none text-lg leading-body text-muted-foreground" dangerouslySetInnerHTML={{ __html: screenshot.content }} />}
+        {screenshot.content && <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: screenshot.content }} />}
       </div>
 
       {screenshot.tags && screenshot.tags.length > 0 && (

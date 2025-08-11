@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-size: 80%;
+  }
+
   :root {
     --background: 0 0% 99%;
     --foreground: 222.2 84% 4.9%;
@@ -86,9 +90,7 @@
     --sidebar-accent-foreground: 25 95% 15%;
     --sidebar-ring: 25 95% 53%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }

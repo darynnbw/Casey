@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill's CSS for styling
+import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
   id?: string;
@@ -24,7 +25,10 @@ const formats = [
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onChange, placeholder, className }) => {
   return (
-    <div className={className}>
+    <div className={cn(
+      "rounded-lg border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:border-primary transition-colors overflow-hidden",
+      className
+    )}>
       <ReactQuill
         id={id}
         theme="snow"
@@ -33,7 +37,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ id, value, onCha
         modules={modules}
         formats={formats}
         placeholder={placeholder}
-        className="rounded-md border border-input/70 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
       />
     </div>
   );

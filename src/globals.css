@@ -92,3 +92,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for React Quill to match app's look and feel */
+.ql-toolbar.ql-snow {
+  @apply rounded-t-lg border-0 border-b border-input bg-card;
+}
+
+.ql-container.ql-snow {
+  @apply rounded-b-lg border-0 bg-card;
+}
+
+.ql-editor {
+  @apply text-base;
+  min-height: 120px;
+}
+
+.ql-editor.ql-blank::before {
+  @apply text-muted-foreground not-italic;
+  content: attr(data-placeholder);
+}

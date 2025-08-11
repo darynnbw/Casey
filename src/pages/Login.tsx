@@ -3,9 +3,11 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/providers/AuthProvider';
 import { Navigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 
 const Login = () => {
   const { session } = useAuth();
+  const { resolvedTheme } = useTheme();
 
   if (session) {
     return <Navigate to="/" replace />;
@@ -19,7 +21,7 @@ const Login = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]}
-          theme="light"
+          theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
         />
       </div>
     </div>

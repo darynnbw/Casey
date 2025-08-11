@@ -61,7 +61,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        'neutral-hover': '#f5f5f5',
+        'neutral-hover': '#fafafa',
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -52,7 +52,7 @@ export function MultiSelectDropdown({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between h-auto min-h-[40px] rounded-lg", className)}
+          className={cn("w-full justify-between h-auto min-h-[40px] rounded-lg bg-card hover:bg-accent/50", className)}
           onClick={() => setOpen(!open)}
         >
           <div className="flex flex-wrap items-center gap-1">
@@ -62,9 +62,9 @@ export function MultiSelectDropdown({
                   const option = options.find((opt) => opt.value === item);
                   return (
                     <Badge
-                      variant="secondary"
+                      variant="default"
                       key={item}
-                      className="rounded-md"
+                      className="rounded-md shadow-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleUnselect(item);

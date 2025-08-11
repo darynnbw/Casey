@@ -91,19 +91,20 @@ export function AddDecisionWizardDialog({ onAddDecision, open, onOpenChange }: A
       {/* DialogTrigger removed as it's now handled by AddActionsDropdown */}
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6"> {/* Increased max-w and padding */}
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
-            <Progress value={progress} className="w-full h-2 mb-4" />
-            <DialogTitle className="text-xl font-semibold"> {/* Smaller font, lighter weight */}
+          <DialogHeader className="mb-4 text-center">
+            <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log New Decision: Details"}
               {step === 2 && "Log New Decision: Context"}
               {step === 3 && "Review & Submit Decision"}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground font-normal"> {/* Lighter font weight */}
+            <DialogDescription className="text-muted-foreground font-normal">
               {step === 1 && "Provide the main details for your decision."}
               {step === 2 && "Explain the reasoning and alternatives considered, and set the date."}
               {step === 3 && "Review your decision before saving."}
             </DialogDescription>
           </DialogHeader>
+
+          <Progress value={progress} className="w-full h-2 mb-6" />
 
           <div className="grid gap-6 py-4"> {/* Increased gap and vertical padding */}
             {step === 1 && (

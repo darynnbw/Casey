@@ -79,8 +79,7 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[550px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
-            <Progress value={progress} className="w-full h-2 mb-4" />
+          <DialogHeader className="mb-4 text-center">
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Add New Note: Content"}
               {step === 2 && "Add New Note: Details"}
@@ -92,6 +91,8 @@ export function AddNoteDialog({ onAddNote, open, onOpenChange }: AddNoteDialogPr
               {step === 3 && "Review your note before saving."}
             </DialogDescription>
           </DialogHeader>
+
+          <Progress value={progress} className="w-full h-2 mb-6" />
 
           <div className="grid gap-6 py-4">
             {step === 1 && (

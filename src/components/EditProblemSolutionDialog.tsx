@@ -121,8 +121,7 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6 px-4">
-            <Progress value={progress} className="w-full h-2 mb-4" />
+          <DialogHeader className="mb-4 text-center">
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Edit Problem & Solution: Problem Details"}
               {step === 2 && "Edit Problem & Solution: Context & Solution"}
@@ -134,6 +133,8 @@ export function EditProblemSolutionDialog({ initialData, onUpdateProblemSolution
               {step === 3 && "Review your changes before updating."}
             </DialogDescription>
           </DialogHeader>
+
+          <Progress value={progress} className="w-full h-2 mb-6" />
 
           <div className="grid gap-6 py-4">
             {step === 1 && (

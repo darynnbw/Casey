@@ -101,8 +101,7 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-[600px] rounded-xl shadow-lg p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6"> {/* Removed px-4 here */}
-            <Progress value={progress} className="w-full h-2 mb-4" />
+          <DialogHeader className="mb-4 text-center">
             <DialogTitle className="text-xl font-semibold">
               {step === 1 && "Log Problem & Solution: Problem Details"}
               {step === 2 && "Log Problem & Solution: Context & Solution"}
@@ -114,6 +113,8 @@ export function AddProblemSolutionDialog({ onAddProblemSolution, open, onOpenCha
               {step === 3 && "Review your problem and solution before saving."}
             </DialogDescription>
           </DialogHeader>
+
+          <Progress value={progress} className="w-full h-2 mb-6" />
 
           <div className="grid gap-6 py-4">
             {step === 1 && (

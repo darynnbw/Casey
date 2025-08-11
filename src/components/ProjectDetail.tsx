@@ -520,45 +520,52 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     allUniqueOccurrenceLocations.forEach(occLoc => otherPills.push({ type: 'occurrence_location', value: occLoc }));
 
     return (
-      <div className="mb-8">
-        <div className="mb-4 flex flex-wrap gap-2">
-          <Badge
-            variant={activeFilter === null ? "default" : "outline"}
-            className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
-            onClick={() => setActiveFilter(null)}
-          >
-            All Content
-          </Badge>
-          {typePills.map((pill, index) => (
-            <Badge
-              key={`${pill.type}-${pill.value}-${index}`}
-              variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
-              className={cn(
-                "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
-                "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
-              )}
-              onClick={() => handlePillClick(pill.type, pill.value)}
-            >
-              {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
-            </Badge>
-          ))}
-        </div>
-        {otherPills.length > 0 && (
+      <div className="mb-8 space-y-6">
+        <div>
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Filter by Type</h4>
           <div className="flex flex-wrap gap-2">
-            {otherPills.map((pill, index) => (
+            <Badge
+              variant={activeFilter === null ? "default" : "outline"}
+              className={cn("cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", activeFilter === null && "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={() => setActiveFilter(null)}
+            >
+              All Content
+            </Badge>
+            {typePills.map((pill, index) => (
               <Badge
                 key={`${pill.type}-${pill.value}-${index}`}
                 variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90"
+                  activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90",
+                  "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200/50 dark:hover:bg-blue-900/50"
                 )}
                 onClick={() => handlePillClick(pill.type, pill.value)}
               >
-                {pill.value}
+                {pill.value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
               </Badge>
             ))}
+          </div>
+        </div>
+
+        {otherPills.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Filter by Tag</h4>
+            <div className="flex flex-wrap gap-2">
+              {otherPills.map((pill, index) => (
+                <Badge
+                  key={`${pill.type}-${pill.value}-${index}`}
+                  variant={activeFilter?.type === pill.type && activeFilter?.value === pill.value ? "default" : "outline"}
+                  className={cn(
+                    "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    activeFilter?.type === pill.type && activeFilter?.value === pill.value && "bg-primary text-primary-foreground hover:bg-primary/90"
+                  )}
+                  onClick={() => handlePillClick(pill.type, pill.value)}
+                >
+                  {pill.value}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
       </div>

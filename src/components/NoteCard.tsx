@@ -48,7 +48,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
       {note.location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-accent text-accent-foreground border-primary/20"
         >
           {isUrl(note.location) ? (
             <a href={note.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">

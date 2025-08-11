@@ -44,7 +44,7 @@ export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemS
       {problemSolution.occurrence_location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-accent text-accent-foreground border-primary/20"
         >
           Location: {problemSolution.occurrence_location}
         </Badge>

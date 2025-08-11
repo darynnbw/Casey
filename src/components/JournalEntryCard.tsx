@@ -44,7 +44,7 @@ export function JournalEntryCard({ journalEntry, onEdit, index }: JournalEntryCa
       {journalEntry.mood && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-accent text-accent-foreground border-primary/20"
         >
           Mood: {journalEntry.mood}
         </Badge>

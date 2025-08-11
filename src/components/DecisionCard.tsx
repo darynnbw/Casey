@@ -15,7 +15,7 @@ interface DecisionCardProps {
 export function DecisionCard({ decision, onEdit, index }: DecisionCardProps) {
   return (
     <div key={decision.id} className={cn(
-      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -41,23 +41,23 @@ export function DecisionCard({ decision, onEdit, index }: DecisionCardProps) {
         </div>
       </div>
       <h4 className="text-lg font-semibold text-foreground">{decision.title}</h4>
-      {decision.summary && <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.summary }} />}
+      {decision.summary && <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.summary }} />}
       {decision.context && (
         <div>
           <p className="text-sm font-medium text-foreground">Context:</p>
-          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.context }} />
+          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.context }} />
         </div>
       )}
       {decision.alternatives && (
         <div>
           <p className="text-sm font-medium text-foreground">Alternatives:</p>
-          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.alternatives }} />
+          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.alternatives }} />
         </div>
       )}
       {decision.rationale && (
         <div>
           <p className="text-sm font-medium text-foreground">Rationale:</p>
-          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.rationale }} />
+          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.rationale }} />
         </div>
       )}
       {decision.tags && decision.tags.length > 0 && (

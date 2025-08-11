@@ -15,7 +15,7 @@ interface JournalEntryCardProps {
 export function JournalEntryCard({ journalEntry, onEdit, index }: JournalEntryCardProps) {
   return (
     <div key={journalEntry.id} className={cn(
-      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -40,11 +40,11 @@ export function JournalEntryCard({ journalEntry, onEdit, index }: JournalEntryCa
           </AlertDialogTrigger>
         </div>
       </div>
-      <div className="prose dark:prose-invert max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: journalEntry.content || '' }} />
+      <div className="prose max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: journalEntry.content || '' }} />
       {journalEntry.mood && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-purple-50/50 text-purple-700 border-purple-200"
         >
           Mood: {journalEntry.mood}
         </Badge>

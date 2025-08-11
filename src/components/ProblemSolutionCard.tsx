@@ -15,7 +15,7 @@ interface ProblemSolutionCardProps {
 export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemSolutionCardProps) {
   return (
     <div key={problemSolution.id} className={cn(
-      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-3",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-3",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -44,7 +44,7 @@ export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemS
       {problemSolution.occurrence_location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200"
         >
           Location: {problemSolution.occurrence_location}
         </Badge>
@@ -52,13 +52,13 @@ export function ProblemSolutionCard({ problemSolution, onEdit, index }: ProblemS
       {problemSolution.problem_description && (
         <div>
           <p className="text-sm font-medium text-foreground">Problem:</p>
-          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.problem_description }} />
+          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.problem_description }} />
         </div>
       )}
       {problemSolution.solution && (
         <div>
           <p className="text-sm font-medium text-foreground">Solution:</p>
-          <div className="prose dark:prose-invert max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.solution }} />
+          <div className="prose max-w-none text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: problemSolution.solution }} />
         </div>
       )}
       {problemSolution.tags && problemSolution.tags.length > 0 && (

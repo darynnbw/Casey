@@ -19,7 +19,7 @@ const isUrl = (text: string) => {
 export function ScreenshotCard({ screenshot, onEdit, index }: ScreenshotCardProps) {
   return (
     <div key={screenshot.id} className={cn(
-      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -48,7 +48,7 @@ export function ScreenshotCard({ screenshot, onEdit, index }: ScreenshotCardProp
       {screenshot.location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200"
         >
           {isUrl(screenshot.location) ? (
             <a href={screenshot.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -66,7 +66,7 @@ export function ScreenshotCard({ screenshot, onEdit, index }: ScreenshotCardProp
 
       <div className="space-y-3">
         <img src={screenshot.file_url} alt={screenshot.content || 'Screenshot'} className="w-full object-contain rounded-lg border border-border/50 bg-muted shadow-sm" loading="lazy" />
-        {screenshot.content && <div className="prose dark:prose-invert max-w-none text-sm italic text-muted-foreground" dangerouslySetInnerHTML={{ __html: screenshot.content }} />}
+        {screenshot.content && <div className="prose max-w-none text-sm italic text-muted-foreground" dangerouslySetInnerHTML={{ __html: screenshot.content }} />}
       </div>
 
       {screenshot.tags && screenshot.tags.length > 0 && (

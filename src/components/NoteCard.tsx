@@ -19,7 +19,7 @@ const isUrl = (text: string) => {
 export function NoteCard({ note, onEdit, index }: NoteCardProps) {
   return (
     <div key={note.id} className={cn(
-      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 dark:shadow-none px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
+      "bg-card border border-border/50 shadow-lg hover:shadow-xl shadow-gray-100/50 px-6 pb-6 pt-4 rounded-xl group relative transform transition-all duration-300 hover:scale-[1.02] flex flex-col gap-2",
       index % 2 === 0 ? "rotate-1" : "-rotate-1"
     )}>
       <div className="flex justify-between items-start">
@@ -48,7 +48,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
       {note.location && (
         <Badge 
           variant="outline" 
-          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800"
+          className="w-fit px-3 py-1 text-xs font-medium rounded-full bg-blue-50/50 text-blue-700 border-blue-200"
         >
           {isUrl(note.location) ? (
             <a href={note.location} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -64,7 +64,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
         </Badge>
       )}
 
-      <div className="prose dark:prose-invert max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
+      <div className="prose max-w-none text-base text-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
 
       {note.tags && note.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">

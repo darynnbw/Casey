@@ -40,7 +40,7 @@ export function JournalEntryCard({ journalEntry, onEdit, index }: JournalEntryCa
           </AlertDialogTrigger>
         </div>
       </div>
-      <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: journalEntry.content || '' }} />
+      <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: journalEntry.content || '' }} />
       {journalEntry.mood && (
         <Badge 
           variant="outline" 

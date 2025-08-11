@@ -64,7 +64,7 @@ export function NoteCard({ note, onEdit, index }: NoteCardProps) {
         </Badge>
       )}
 
-      <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
+      <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
 
       {note.tags && note.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">

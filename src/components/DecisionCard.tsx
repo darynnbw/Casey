@@ -41,23 +41,23 @@ export function DecisionCard({ decision, onEdit, index }: DecisionCardProps) {
         </div>
       </div>
       <h4 className="text-lg font-semibold text-foreground">{decision.title}</h4>
-      {decision.summary && <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.summary }} />}
+      {decision.summary && <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.summary }} />}
       {decision.context && (
         <div>
           <p className="text-sm font-medium text-foreground">Context:</p>
-          <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.context }} />
+          <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.context }} />
         </div>
       )}
       {decision.alternatives && (
         <div>
           <p className="text-sm font-medium text-foreground">Alternatives:</p>
-          <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.alternatives }} />
+          <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.alternatives }} />
         </div>
       )}
       {decision.rationale && (
         <div>
           <p className="text-sm font-medium text-foreground">Rationale:</p>
-          <div className="prose max-w-none text-lg text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.rationale }} />
+          <div className="prose max-w-none text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: decision.rationale }} />
         </div>
       )}
       {decision.tags && decision.tags.length > 0 && (
